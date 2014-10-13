@@ -7,6 +7,7 @@ struct mips_regs
 {
     uint32_t regs[32];
     uint32_t hi, lo;
+    uint32_t pc;
 };
 
 #endif
