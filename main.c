@@ -22,15 +22,24 @@ int main(int argc, char *argv[])
     for (i=0; i<hdr.e_phnum; i++){
         // read a program header
         fread(&phdr, sizeof(phdr), 1, fp);
+        if (!(phdr.p_type&PT_LOAD)) {
+            continue;
+        }
         
         void* ph_ad = mmu_alloc(&sim_mmu, phdr.p_vaddr, phdr.p_memsz);
         long pos = ftell(fp);
         fseek(fp, phdr.p_offset, SEEK_SET);
         fread(ph_ad, phdr.p_filesz, 1, fp);
         fseek(fp, pos, SEEK_SET);
+
+        fprintf(stderr, "Loaded segment type: %d\n", phdr.p_type);
     }
     
+    uint32_t *entry_addr = (uint32_t*)mmu_translate_addr(&sim_mmu, hdr.e_entry);
+    fprintf(stderr, "The first instruction word: %p\n", *entry_addr);
+    
     fclose(fp);
+
     return 0;
 }
 
