@@ -66,29 +66,36 @@ DEFUN_R(srl, regs, m, rs, rt, rd, shamt)
     regs->regs[rd] = regs->regs[rt]>>shamt;
 }
 
+typedef struct
+{
+    void (*exec_r_inst)(struct mips_regs*, struct mmu*, int, int, int, int);
+    char *asmstr;
+} r_inst_tab;
+
+r_inst_tab mips_r_insts[] =
+{
+    [MR_SLL] { sll, "sll $%d, $%d, %d" },
+    [MR_SRL] { srl, "srl $%d, $%d, %d" },
+    [MR_ADD] { add, "add $%d, $%d, $%d" },
+    [MR_ADDU] { addu, "addu $%d, $%d, $%d" },
+    [MR_SUB] { sub, "sub $%d, $%d, $%d" },
+    [MR_SUBU] { subu, "subu $%d, $%d $%d" },
+    [MR_AND] { and, "and $%d, $%d, $%d" },
+    [MR_OR] { or, "or $%d, $%d, $%d" },
+    [MR_XOR] { xor, "xor $%d, $%d, $%d" },
+    [MR_NOR] { nor, "nor $%d, $%d, $%d" },
+    [MR_SLT] { slt, "slt $%d, $%d, $%d" },
+    [MR_SLTU] { sltu, "sltu $%d, $%d, $%d" }
+};
+        
 // R instruction format
 // opcode[26:31]=0 rs[21:25] rt[16:20] rd[11:15] shamt[6:10] funct[1:5]
 void
 r_inst(struct mips_regs *reg, struct mmu *m, int rs, int rt, int rd,
        int shamt, int funct)
 {
-    void (*exec_r_inst[])(struct mips_regs *,struct mmu*, int, int, int, int) =
-        {
-            [0] sll,
-            [2] srl,
-            [32] add,
-            [33] addu,
-            [34] sub,
-            [35] subu,
-            [36] and,
-            [37] or,
-            [38] xor,
-            [39] nor,
-            [42] slt,
-            [43] sltu
-        };
-    if (exec_r_inst[funct]) {
-        exec_r_inst[funct](reg, m, rs, rt, rd, shamt);
+    if (mips_r_insts[funct]) {
+        mips_r_insts[funct].exec_r_inst(reg, m, rs, rt, rd, shamt);
     }
 }
 
