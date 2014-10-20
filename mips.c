@@ -66,12 +66,6 @@ DEFUN_R(srl, regs, m, rs, rt, rd, shamt)
     regs->regs[rd] = regs->regs[rt]>>shamt;
 }
 
-typedef struct
-{
-    void (*exec_r_inst)(struct mips_regs*, struct mmu*, int, int, int, int);
-    char *asmstr;
-} r_inst_tab;
-
 r_inst_tab mips_r_insts[] =
 {
     [MR_SLL] { sll, "sll $%d, $%d, %d" },

@@ -89,6 +89,13 @@ enum MIPS_r {
     MR_TNE = 54
 };
 
+typedef struct
+{
+    void (*exec_r_inst)(struct mips_regs*, struct mmu*, int, int, int, int);
+    char *asmstr;
+} r_inst_tab;
+
+
 /* opcode for I-format and J-format */
 enum MIPS_imm {
     MJ_J = 2,
