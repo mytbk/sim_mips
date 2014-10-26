@@ -2,13 +2,17 @@
 #include <stdlib.h>
 #include <linux/elf.h>
 #include "mmu.h"
+#include "mipsop.h"
+void print_disas_string(mipsinst_t);
+
+struct mmu sim_mmu;
+struct mips_regs reg;
 
 int main(int argc, char *argv[])
 {
     FILE *fp;
     struct elf32_hdr hdr;
     struct elf32_phdr phdr;
-    struct mmu sim_mmu;
     
     int i;
         
@@ -37,6 +41,9 @@ int main(int argc, char *argv[])
     
     uint32_t *entry_addr = (uint32_t*)mmu_translate_addr(&sim_mmu, hdr.e_entry);
     fprintf(stderr, "The first instruction word: %p\n", *entry_addr);
+    print_disas_string(*(mipsinst_t*)entry_addr);
+
+    mips_run(&reg, &sim_mmu, hdr.e_entry);
     
     fclose(fp);
 
