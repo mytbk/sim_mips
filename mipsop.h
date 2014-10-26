@@ -1,6 +1,7 @@
 #ifndef SIM_MIPSOP_H
 #define SIM_MIPSOP_H
 #include "type.h"
+#include "mips.h"
 
 #define DEFUN_R(fun,r,m,rs,rt,rd,shamt) \
     static void fun(struct mips_regs *r, struct mmu *m, \
@@ -11,6 +12,12 @@
 #define DEFUN_J(fun,r,m,imm) \
     static void fun(struct mips_regs *r, struct mmu *m, \
                     uint32_t imm)
+
+static inline int SIGNEXT(uint32_t x)
+{
+    signed short xs = x;
+    return xs;
+}
 
 #define OP3(op,rs,rt,rd) \
     regs->regs[rd] = regs->regs[rs] op regs->regs[rt]
@@ -43,10 +50,13 @@ typedef struct
 
 typedef union
 {
+    unsigned bytes;
     reg_type r;
     imm_type i;
     jmp_type j;
 } mipsinst_t;
+
+insttype_t get_inst_type(mipsinst_t);
 
 /* funct for R-format instruction */
 enum MIPS_r {
@@ -137,6 +147,20 @@ enum MIPS_imm {
     MI_SDC1 = 61,
     MI_SDC2
 };
+
+typedef struct
+{
+    void (*exec_i_inst)(struct mips_regs*, struct mmu*, int, int, uint32_t);
+    char *asmstr;
+} i_inst_tab;
+
+typedef struct
+{
+    void (*exec_j_inst)(struct mips_regs*, struct mmu*, int);
+    char *asmstr;
+} j_inst_tab;
+
+void mips_run(struct mips_regs*, struct mmu*, uint32_t);
 
 #endif    
     
