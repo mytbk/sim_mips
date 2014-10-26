@@ -28,13 +28,14 @@ void print_disas_string(mipsinst_t inst)
                    inst.r.rd, inst.r.rt, inst.r.sa);
         } else {
             printf(mips_r_insts[inst.r.funct].asmstr,
-                   inst.r.rd, inst.r.rs, inst.r.rd);
+                   inst.r.rd, inst.r.rs, inst.r.rt);
         }
         break;
     case I_TYPE:
     case J_TYPE:
     default:
         // should not go here
+        break;
     }
     puts("");
 }
