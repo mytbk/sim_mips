@@ -108,6 +108,7 @@ typedef struct
 
 /* opcode for I-format and J-format */
 enum MIPS_imm {
+    MI_BGEZ = 1,
     MJ_J = 2,
     MJ_JAL = 3,
     MI_BEQ,
