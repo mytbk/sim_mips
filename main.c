@@ -7,6 +7,22 @@ void print_disas_string(mipsinst_t);
 
 struct mmu sim_mmu;
 struct mips_regs reg;
+int inst_count=0;
+
+void sim_exit()
+{
+    int i;
+    
+    fprintf(stderr, "%d instructions executed\n", inst_count);
+    for (i=0; i<32; i++) {
+        fprintf(stderr, "reg[%d]=%x ", i, reg.regs[i]);
+        if (i%8==7) {
+            fprintf(stderr, "\n");
+        }
+    }
+//    uint32_t* stack = mmu_translate_addr(&sim_mmu, reg.regs[29]);
+//    fprintf(stderr, "stack: %x %x %x %x\n", stack[0])
+}
 
 int main(int argc, char *argv[])
 {
@@ -15,7 +31,8 @@ int main(int argc, char *argv[])
     struct elf32_phdr phdr;
     
     int i;
-        
+    atexit(sim_exit);
+    
     fp = fopen(argv[1], "rb");
     fread(&hdr, sizeof(hdr), 1, fp);
     printf("entry point: %p\n", hdr.e_entry);
@@ -26,7 +43,7 @@ int main(int argc, char *argv[])
     for (i=0; i<hdr.e_phnum; i++){
         // read a program header
         fread(&phdr, sizeof(phdr), 1, fp);
-        if (!(phdr.p_type&PT_LOAD)) {
+        if (!(phdr.p_type==PT_LOAD)) {
             continue;
         }
         
