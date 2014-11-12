@@ -1,5 +1,5 @@
 CFLAGS=-g -Wall
-OBJS=main.o mmu.o mips.o mipsinst.o
+OBJS=main.o mmu.o mips.o mipsinst.o syscall.o
 
 all: main
 
