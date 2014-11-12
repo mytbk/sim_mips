@@ -2,10 +2,47 @@
 #include "mips.h"
 #include "mmu.h"
 #include "mipsop.h"
+#include "syscall.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+static void
+exec_delayed_branch(struct mips_regs *r, struct mmu *m)
+{
+    mips_inst_exec(r, m, *(uint32_t*)mmu_translate_addr(m, r->pc));
+    r->pc -= 4;
+    return;
+}
+
 /* begin R instructions */
+DEFUN_R(jr, r, m, rs, rt, rd, shamt)
+{
+    exec_delayed_branch(r, m);
+    r->pc = r->regs[rs];
+}
+
+DEFUN_R(jalr, r, m, rs, rt, rd, shamt)
+{
+    exec_delayed_branch(r, m);
+    r->regs[rd] = r->pc;
+    r->pc = r->regs[rs];
+}
+
+DEFUN_R(syscall, r, m, rs, rt, rd, shamt)
+{
+    fprintf(stderr, "syscall %d pc=0x%x\n", r->regs[2], r->pc);
+    
+    switch (r->regs[2]) {
+    case 4122: // sys_newuname
+        sys_uname(r, m);
+        break;
+        
+    default:
+        break;
+        
+    }
+    
+}
 
 DEFUN_R(add, regs, m, rs, rt, rd, sh)
 {
@@ -72,6 +109,10 @@ DEFUN_R(srl, regs, m, rs, rt, rd, shamt)
 
 r_inst_tab mips_r_insts[64] =
 {
+    [MR_JR] { jr, "jr $%d" },
+    [MR_JALR] { jalr, "jalr $%d, $%d" },
+    [MR_SYSCALL] { syscall, "syscall" },
+    
     [MR_SLL] { sll, "sll $%d, $%d, %d" },
     [MR_SRL] { srl, "srl $%d, $%d, %d" },
     [MR_ADD] { add, "add $%d, $%d, $%d" },
@@ -88,9 +129,51 @@ r_inst_tab mips_r_insts[64] =
 
 /* begin I instructions */
 
+DEFUN_I(bgez, r, m, rs, rt, imm)
+{
+    int sgnrs = r->regs[rs];
+    
+    switch (rt) {
+    case 0:
+        // bltz 
+        if (sgnrs<0) {
+            exec_delayed_branch(r, m);
+            r->pc += SIGNEXT(imm)*4;
+        }
+        break;
+    case 1:
+        // bgez
+        if (sgnrs>=0) {
+            exec_delayed_branch(r, m);
+            r->pc += SIGNEXT(imm)*4;
+        }
+        break;
+    case 0x10:
+        // bltzal
+        if (sgnrs<0) {
+            exec_delayed_branch(r, m);
+            r->regs[31] = r->pc;
+            r->pc += SIGNEXT(imm)*4;
+        }
+        break;
+    case 0x11:
+        // bgezal
+        if (sgnrs>=0) {
+            exec_delayed_branch(r, m);
+            r->regs[31] = r->pc;
+            r->pc += SIGNEXT(imm)*4;
+        }
+        break;
+    default:
+        fprintf(stderr, "error: opcode=1, rt=%d\n", rt);
+    }
+}
+
+
 DEFUN_I(beq, r, m, rs, rt, imm)
 {
     if (r->regs[rs]==r->regs[rt]) {
+        exec_delayed_branch(r, m);
         r->pc += SIGNEXT(imm)*4;
     }
 }
@@ -98,6 +181,7 @@ DEFUN_I(beq, r, m, rs, rt, imm)
 DEFUN_I(bne, r, m, rs, rt, imm)
 {
     if (r->regs[rs]!=r->regs[rt]) {
+        exec_delayed_branch(r, m);
         r->pc += SIGNEXT(imm)*4;
     }
 }
@@ -109,7 +193,7 @@ DEFUN_I(addi, r, m, rs, rt, imm)
 
 DEFUN_I(addiu, r, m, rs, rt, imm)
 {
-    r->regs[rt] = r->regs[rs] + imm;
+    r->regs[rt] = r->regs[rs] + SIGNEXT(imm);
 }
 
 DEFUN_I(slti, r, m, rs, rt, imm)
@@ -133,24 +217,54 @@ DEFUN_I(xori, r, m, rs, rt, imm)
 {
 }
 
+DEFUN_I(lb, r, m, rs, rt, imm)
+{
+    uint32_t va = r->regs[rs]+SIGNEXT(imm);
+    unsigned char *addr = (unsigned char*)mmu_translate_addr(m, va);
+    if (addr==NULL) {
+        fprintf(stderr, "error: lb: target address %x not exist, pc=%x\n", va, r->pc);
+        exit(1);
+    } else {
+        r->regs[rt] = *addr;
+    }
+}
+
 DEFUN_I(lui, r, m, rs, rt, imm)
 {
+    if (rs!=0) {
+        fprintf(stderr, "error: lui instruction, rs!=0\n");
+        exit(1);
+    }
+    r->regs[rt] = imm<<16;
 }
 
 DEFUN_I(lw, r, m, rs, rt, imm)
 {
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
-    r->regs[rt] = *(uint32_t*)mmu_translate_addr(m, addr);
+    uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
+    if (my_addr==NULL) {
+        fprintf(stderr, "error: lw: target address %x not exist, pc=%x\n", addr, r->pc);
+        exit(1);
+    } else {
+        r->regs[rt] = *my_addr;
+    }
 }
 
 DEFUN_I(sw, r, m, rs, rt, imm)
 {
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
-    *(uint32_t*)mmu_translate_addr(m, addr) = r->regs[rt];
+    uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
+    if (my_addr==NULL) {
+        fprintf(stderr, "error: sw: target address %p not exist, pc=%p\n", addr, r->pc);
+        exit(1);
+    } else {
+        *my_addr = r->regs[rt];
+    }
 }
 
 i_inst_tab mips_i_insts[64] =
 {
+    [MI_BGEZ] { bgez, "bgez/blez(al) $%d, %d, %x" },
     [MI_BEQ] { beq, "beq $%d, $%d, %x" },
     [MI_BNE] { bne, "bne $%d, $%d, %x" },
     [MI_ADDI] { addi, "addi $%d, $%d, %d" },
@@ -158,6 +272,9 @@ i_inst_tab mips_i_insts[64] =
     [MI_ANDI] { andi, "andi $%d, $%d, %x" },
     [MI_ORI] { NULL, "ori $%d, $%d, %x" },
     [MI_XORI] { NULL, "xori $%d, $%d, %x" },
+    [MI_LUI] { lui, "lui $%d, %x" },
+    [MI_LB] { lb, "lb $%d, $%d, %x" },
+    
     [MI_LW] { lw, "lw $%d, $%d, %x" },
     [MI_SW] { sw, "sw $%d, $%d, %x" },
 };
@@ -165,14 +282,27 @@ i_inst_tab mips_i_insts[64] =
 /* begin J instructions */
 DEFUN_J(j, r, m, imm)
 {
+    exec_delayed_branch(r, m);
+    
+    imm <<= 2;
+    r->pc &= 0xf0000000;
+    r->pc |= imm;
 }
 
 DEFUN_J(jal, r, m, imm)
 {
+    exec_delayed_branch(r, m);
+    
+    r->regs[31] = r->pc;
+    imm <<= 2;
+    r->pc &= 0xf0000000;
+    r->pc |= imm;
 }
 
 j_inst_tab mips_j_insts[64] = 
 {
+    [MJ_J] { j, "j %x" },
+    [MJ_JAL] { jal, "j %x" }    
 };
     
 // R instruction format
@@ -227,11 +357,14 @@ mips_inst_exec(struct mips_regs *reg, struct mmu *m, uint32_t inst)
     case I_TYPE:
         i_inst(reg, m, mi.i.opcode, mi.i.rs, mi.i.rt, mi.i.imm);
         break;
+    case J_TYPE:
+        j_inst(reg, m, mi.j.opcode, mi.j.imm);
+        break;
+        
     default:
         fprintf(stderr, "error: instruction %x cannot be executed.\n", inst);
         exit(1);
     }
-    
 }
 
 static void statechk(struct mips_regs *r)
@@ -244,31 +377,18 @@ static void statechk(struct mips_regs *r)
 
 void mips_run(struct mips_regs *r, struct mmu *m, uint32_t entry_addr)
 {
+    extern int inst_count;
+
+    mmu_alloc_heap_stack(m, r);
+    r->regs[29] -= 16;
+    
     r->pc = entry_addr;
+    
     while (1) {
         statechk(r);
         uint32_t inst = *(uint32_t*)mmu_translate_addr(m, r->pc);
         mips_inst_exec(r, m, inst);
+        inst_count++;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
