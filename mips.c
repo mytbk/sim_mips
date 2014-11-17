@@ -33,6 +33,10 @@ DEFUN_R(syscall, r, m, rs, rt, rd, shamt)
     fprintf(stderr, "syscall %d pc=0x%x\n", r->regs[2], r->pc);
     
     switch (r->regs[2]) {
+    case 4045:
+        sys_brk(r, m);
+        break;
+        
     case 4122: // sys_newuname
         sys_uname(r, m);
         break;
@@ -107,12 +111,51 @@ DEFUN_R(srl, regs, m, rs, rt, rd, shamt)
     regs->regs[rd] = regs->regs[rt]>>shamt;
 }
 
+DEFUN_R(sllv, r, m, rs, rt, rd, shamt)
+{
+    r->regs[rd] = r->regs[rt]<<r->regs[rs];
+}
+
+DEFUN_R(mult, r, m, rs, rt, rd, shamt)
+{
+    int s=r->regs[rs], t=r->regs[rt];
+    long long result;
+    result = s*t;
+    r->lo = *(int*)&result;
+    r->hi = *(((int*)&result)+1);
+}
+
+DEFUN_R(mfhi, r, m, rs, rt, rd, shamt)
+{
+    r->regs[rd] = r->hi;
+}
+
+DEFUN_R(mflo, r, m, rs, rt, rd, shamt)
+{
+    r->regs[rd] = r->lo;
+}
+
+DEFUN_R(mthi, r, m, rs, rt, rd, shamt)
+{
+    r->hi = r->regs[rs];
+}
+
+DEFUN_R(mtlo, r, m, rs, rt, rd, shamt)
+{
+    r->lo = r->regs[rs];
+}
+
 r_inst_tab mips_r_insts[64] =
 {
+    [MR_SLLV] { sllv, "sllv $%d, $%d, $%d" },    
     [MR_JR] { jr, "jr $%d" },
     [MR_JALR] { jalr, "jalr $%d, $%d" },
     [MR_SYSCALL] { syscall, "syscall" },
-    
+    [MR_MFHI] { mfhi, "mfhi $%d" },
+    [MR_MTHI] { mthi, "mthi $%d" },
+    [MR_MFLO] { mflo, "mflo $%d" },
+    [MR_MTLO] { mflo, "mtlo $%d" },
+    [MR_MULT] { mult, "mult $%d, $%d" },
     [MR_SLL] { sll, "sll $%d, $%d, %d" },
     [MR_SRL] { srl, "srl $%d, $%d, %d" },
     [MR_ADD] { add, "add $%d, $%d, $%d" },
@@ -202,6 +245,8 @@ DEFUN_I(slti, r, m, rs, rt, imm)
 
 DEFUN_I(sltiu, r, m, rs, rt, imm)
 {
+    int t1 = r->regs[rs], t2 = SIGNEXT(imm);
+    r->regs[rt] = (t1<t2);
 }
 
 DEFUN_I(andi, r, m, rs, rt, imm)
@@ -269,6 +314,8 @@ i_inst_tab mips_i_insts[64] =
     [MI_BNE] { bne, "bne $%d, $%d, %x" },
     [MI_ADDI] { addi, "addi $%d, $%d, %d" },
     [MI_ADDIU] { addiu, "addiu $%d, $%d, %d" },
+    [MI_SLTIU] { sltiu, "sltiu $%d, $%d, %d" },
+    
     [MI_ANDI] { andi, "andi $%d, $%d, %x" },
     [MI_ORI] { NULL, "ori $%d, $%d, %x" },
     [MI_XORI] { NULL, "xori $%d, $%d, %x" },
