@@ -229,6 +229,15 @@ DEFUN_I(bne, r, m, rs, rt, imm)
     }
 }
 
+DEFUN_I(blez, r, m, rs, rt, imm)
+{
+    int t=r->regs[rs];
+    if (t<=0) {
+        exec_delayed_branch(r, m);
+        r->pc += SIGNEXT(imm)*4;
+    }
+}
+
 DEFUN_I(addi, r, m, rs, rt, imm)
 {
     r->regs[rt] = r->regs[rs] + SIGNEXT(imm);
@@ -309,9 +318,10 @@ DEFUN_I(sw, r, m, rs, rt, imm)
 
 i_inst_tab mips_i_insts[64] =
 {
-    [MI_BGEZ] { bgez, "bgez/blez(al) $%d, %d, %x" },
+    [MI_BGEZ] { bgez, "bgez/bltz(al) $%d, %d, %x" },
     [MI_BEQ] { beq, "beq $%d, $%d, %x" },
     [MI_BNE] { bne, "bne $%d, $%d, %x" },
+    [MI_BLEZ] { blez, "blez $%d, $%d" },
     [MI_ADDI] { addi, "addi $%d, $%d, %d" },
     [MI_ADDIU] { addiu, "addiu $%d, $%d, %d" },
     [MI_SLTIU] { sltiu, "sltiu $%d, $%d, %d" },
