@@ -5,5 +5,6 @@
 #include "mmu.h"
 
 void sys_uname(struct mips_regs *, struct mmu *);
+void sys_brk(struct mips_regs *, struct mmu *);
 
 #endif

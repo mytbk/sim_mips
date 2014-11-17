@@ -2,6 +2,7 @@
 #include "mmu.h"
 #include <sys/utsname.h>
 #include <string.h>
+#include <stdio.h>
 
 void sys_uname(struct mips_regs *r, struct mmu *m)
 {
@@ -14,3 +15,7 @@ void sys_uname(struct mips_regs *r, struct mmu *m)
     r->regs[2] = 0;
 }
 
+void sys_brk(struct mips_regs *r, struct mmu *m)
+{
+    fprintf(stderr, "sys_brk not implemented yet\n");
+}
