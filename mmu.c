@@ -46,10 +46,9 @@ mmu_translate_addr(struct mmu *m, uint32_t vm)
 void
 mmu_alloc_heap_stack(struct mmu *m, struct mips_regs *r)
 {
-    // allocate stack at 0xf0000000 to 0xf0000000+8M
-    mmu_alloc(m, 0xf0000000, 1<<23);
-    r->regs[29] = 0xf0000000+(1<<23);
-    m->nextfree = 0xf0000000;
+    mmu_alloc(m, USTKTOP-USTKSIZE, USTKSIZE);
+    r->regs[29] = USTKTOP-16;
+    m->nextfree = USTKTOP;
 }
 
 uint32_t
@@ -61,3 +60,10 @@ mmu_heap_alloc(struct mmu *m, uint32_t size)
     m->nextfree = (m->nextfree+3)&~3;
     return ret;
 }
+
+
+
+
+
+
+

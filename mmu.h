@@ -4,12 +4,19 @@
 #include "type.h"
 #include "mips.h"
 
+#define USTKSIZE (1<<13)
+#define USTKTOP (0xc0000000)
+
 struct Block;
 
 struct mmu 
 {
     struct Block *mmuhdr;
-    uint32_t nextfree; // next free virt address that can be allocated
+    uint32_t brk;
+    /* next free virt address
+       that can be allocated in kernel
+    */
+    uint32_t nextfree;
 };
 
 struct Block
