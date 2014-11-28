@@ -30,23 +30,7 @@ DEFUN_R(jalr, r, m, rs, rt, rd, shamt)
 
 DEFUN_R(syscall, r, m, rs, rt, rd, shamt)
 {
-    fprintf(stderr, "syscall %d pc=0x%x\n", r->regs[2], r->pc);
-    
-    switch (r->regs[2]) {
-    case 4045:
-        sys_brk(r, m);
-        break;
-        
-    case 4122: // sys_newuname
-        sys_uname(r, m);
-        break;
-        
-    default:
-        fprintf(stderr, "syscall %d unhandled\n", r->regs[2]);
-        break;
-        
-    }
-    
+    handle_syscall(r, m);
 }
 
 DEFUN_R(add, regs, m, rs, rt, rd, sh)
