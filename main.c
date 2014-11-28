@@ -52,7 +52,8 @@ int main(int argc, char *argv[])
         fseek(fp, phdr.p_offset, SEEK_SET);
         fread(ph_ad, phdr.p_filesz, 1, fp);
         fseek(fp, pos, SEEK_SET);
-
+        mmu_set_brk(&sim_mmu, phdr.p_vaddr+phdr.p_memsz);
+        
         fprintf(stderr, "Loaded segment type: %d\n", phdr.p_type);
     }
     
