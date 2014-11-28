@@ -1,6 +1,7 @@
 #include "syscall.h"
 #include <sys/utsname.h>
 #include <sys/stat.h>
+#include <sys/uio.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
@@ -33,6 +34,17 @@ sys_open(struct mips_regs *r, struct mmu *m)
     CALLSTATE(r) = 0;
 }
 
+static void
+sys_writev(struct mips_regs *r, struct mmu *m)
+{
+    int fd = CALLARG(r, 0);
+    const struct iovec *iov =
+        (const struct iovec*)mmu_translate_addr(m, CALLARG(r, 1));
+    int iovcnt = CALLARG(r, 2);
+    CALLRET(r) = writev(fd, iov, iovcnt);
+    CALLSTATE(r) = 0;
+}
+
 void
 handle_syscall(struct mips_regs *r, struct mmu *m)
 {
@@ -41,6 +53,9 @@ handle_syscall(struct mips_regs *r, struct mmu *m)
     switch (r->regs[2]) {
     case 4005:
         sys_open(r, m);
+        break;
+    case 4146:
+        sys_writev(r, m);
         break;
         
     case 4045:
