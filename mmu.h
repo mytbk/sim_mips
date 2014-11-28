@@ -32,6 +32,7 @@ void* mmu_alloc(struct mmu*, uint32_t, uint32_t);
 void* mmu_translate_addr(struct mmu*, uint32_t);
 void mmu_alloc_heap_stack(struct mmu*, struct mips_regs*);
 uint32_t mmu_heap_alloc(struct mmu*, uint32_t);
+uint32_t mmu_set_brk(struct mmu*, uint32_t);
 
 #endif    
 

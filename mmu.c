@@ -43,6 +43,13 @@ mmu_translate_addr(struct mmu *m, uint32_t vm)
     }
 }
 
+uint32_t
+mmu_set_brk(struct mmu *m, uint32_t vm)
+{
+    m->brk = vm;
+    return m->brk;
+}
+
 void
 mmu_alloc_heap_stack(struct mmu *m, struct mips_regs *r)
 {
