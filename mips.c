@@ -42,6 +42,7 @@ DEFUN_R(syscall, r, m, rs, rt, rd, shamt)
         break;
         
     default:
+        fprintf(stderr, "syscall %d unhandled\n", r->regs[2]);
         break;
         
     }
@@ -250,11 +251,13 @@ DEFUN_I(addiu, r, m, rs, rt, imm)
 
 DEFUN_I(slti, r, m, rs, rt, imm)
 {
+    int t1 = r->regs[rs], t2 = SIGNEXT(imm);
+    r->regs[rt] = (t1<t2);
 }
 
 DEFUN_I(sltiu, r, m, rs, rt, imm)
 {
-    int t1 = r->regs[rs], t2 = SIGNEXT(imm);
+    uint32_t t1 = r->regs[rs], t2 = imm;
     r->regs[rt] = (t1<t2);
 }
 
@@ -304,6 +307,18 @@ DEFUN_I(lw, r, m, rs, rt, imm)
     }
 }
 
+DEFUN_I(sb, r, m, rs, rt, imm)
+{
+    uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    char *my_addr = (char*)mmu_translate_addr(m, addr);
+    if (my_addr==NULL) {
+        fprintf(stderr, "error: lw: target address %x not exist, pc=%x\n", addr, r->pc);
+        exit(1);
+    } else {
+        *my_addr = r->regs[rt];
+    }
+}
+
 DEFUN_I(sw, r, m, rs, rt, imm)
 {
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
@@ -324,6 +339,8 @@ i_inst_tab mips_i_insts[64] =
     [MI_BLEZ] { blez, "blez $%d, $%d" },
     [MI_ADDI] { addi, "addi $%d, $%d, %d" },
     [MI_ADDIU] { addiu, "addiu $%d, $%d, %d" },
+    [MI_SLTI] { slti, "slti $%d, $%d, %d" },
+    
     [MI_SLTIU] { sltiu, "sltiu $%d, $%d, %d" },
     
     [MI_ANDI] { andi, "andi $%d, $%d, %x" },
@@ -333,6 +350,8 @@ i_inst_tab mips_i_insts[64] =
     [MI_LB] { lb, "lb $%d, $%d, %x" },
     
     [MI_LW] { lw, "lw $%d, $%d, %x" },
+    [MI_SB] { sb, "sb $%d, $%d, %x" },
+    
     [MI_SW] { sw, "sw $%d, $%d, %x" },
 };
 
