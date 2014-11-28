@@ -6,25 +6,32 @@
 
 #define USTKSIZE (1<<13)
 #define USTKTOP (0xc0000000)
+#define PGSIZE 4096
 
-struct Block;
+static inline
+ROUNDDOWN(x, n)
+{
+    return x-x%n;
+}
+
+static inline
+ROUNDUP(x, n)
+{
+    return ROUNDDOWN(x+n-1, n);
+}
+
+#define PDX(x) (((x)>>22)&1023)
+#define PTX(x) (((x)>>12)&1023)
+#define PGOFF(x) ((x)&4095)
 
 struct mmu 
 {
-    struct Block *mmuhdr;
+    void ***pgdir;
     uint32_t brk;
     /* next free virt address
        that can be allocated in kernel
     */
     uint32_t nextfree;
-};
-
-struct Block
-{
-    uint32_t va_start;
-    uint32_t size;
-    void *pa_start;
-    struct Block *next;
 };
 
 int mmu_init(struct mmu*);

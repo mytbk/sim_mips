@@ -6,41 +6,45 @@
 int 
 mmu_init(struct mmu *m)
 {
-    m->mmuhdr = (struct Block*)calloc(sizeof(struct Block), 1);
+    m->pgdir = calloc(1024, sizeof(void**));
     return 0;
+}
+
+static void
+set_pg_map(struct mmu *m, uint32_t va, void* addr)
+{
+    size_t pdx=PDX(va), ptx=PTX(va);
+        
+    if (m->pgdir[pdx]==NULL) {
+        m->pgdir[pdx] = calloc(1024, sizeof(void*));
+    }
+    m->pgdir[pdx][ptx] = addr;
 }
 
 void*
 mmu_alloc(struct mmu *m, uint32_t vma, uint32_t memsz)
 {
-    struct Block *p = m->mmuhdr;
-    while (p->next!=NULL) {
-        p = p->next;
+    uint32_t start = ROUNDDOWN(vma, PGSIZE);
+    uint32_t end = ROUNDUP(vma+memsz, PGSIZE);
+    void *addr = malloc(end-start);
+    void *base = addr;
+    
+    while (start<end) {
+        set_pg_map(m, start, addr);
+        start += PGSIZE;
+        addr += PGSIZE;
     }
-    // append a block
-    p->next = (struct Block*)malloc(sizeof(struct Block));
-    p->next->pa_start = malloc(memsz);
-    p->next->va_start = vma;
-    p->next->size = memsz;
-    p->next->next = NULL;
-
-    // return the physical address allocated
-    return p->next->pa_start;
+    return base+PGOFF(vma);
 }
 
 void*
 mmu_translate_addr(struct mmu *m, uint32_t vm)
 {
-    struct Block *p = m->mmuhdr;
-    while (p!=NULL
-           && !(p->va_start<=vm && p->va_start+p->size>vm)){
-        p = p->next;
-    }
-    if (p==NULL) {
+    size_t pdx=PDX(vm), ptx=PTX(vm);
+    if (m->pgdir[pdx]==NULL) {
         return NULL;
-    } else {
-        return p->pa_start+(vm-p->va_start);
     }
+    return m->pgdir[pdx][ptx]+PGOFF(vm);
 }
 
 uint32_t
@@ -53,7 +57,9 @@ mmu_set_brk(struct mmu *m, uint32_t vm)
 void
 mmu_alloc_heap_stack(struct mmu *m, struct mips_regs *r)
 {
-    mmu_alloc(m, USTKTOP-USTKSIZE, USTKSIZE);
+    // allocate a user stack
+    // and also some free space for kernel data
+    mmu_alloc(m, USTKTOP-USTKSIZE, USTKSIZE*2);
     r->regs[29] = USTKTOP-16;
     m->nextfree = USTKTOP;
 }
