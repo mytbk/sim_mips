@@ -35,6 +35,14 @@ sys_open(struct mips_regs *r, struct mmu *m)
 }
 
 static void
+sys_setresgid(struct mips_regs *r, struct mmu *m)
+{
+    fprintf(stderr, "ignore sys_setresgid\n");
+    CALLRET(r) = 0;
+    CALLSTATE(r) = 0;
+}
+    
+static void
 sys_writev(struct mips_regs *r, struct mmu *m)
 {
     int fd = CALLARG(r, 0);
@@ -60,6 +68,9 @@ handle_syscall(struct mips_regs *r, struct mmu *m)
         
     case 4045:
         sys_brk(r, m);
+        break;
+    case 4090:
+        sys_setresgid(r, m);
         break;
         
     case 4122: // sys_newuname
