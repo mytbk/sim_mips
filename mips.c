@@ -3,6 +3,7 @@
 #include "mmu.h"
 #include "mipsop.h"
 #include "syscall.h"
+#include "debugger.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -435,7 +436,8 @@ static void statechk(struct mips_regs *r)
     }
 }
 
-void mips_run(struct mips_regs *r, struct mmu *m, uint32_t entry_addr)
+void
+mips_run(struct mips_regs *r, struct mmu *m, uint32_t entry_addr, int debug)
 {
     extern int inst_count;
 
@@ -443,7 +445,14 @@ void mips_run(struct mips_regs *r, struct mmu *m, uint32_t entry_addr)
     r->regs[29] -= 16;
     
     r->pc = entry_addr;
-    
+
+    if (debug) {
+        int ret = 1;
+        while (ret) {
+            ret = debugger(r, m);
+        }
+    }
+            
     while (1) {
         statechk(r);
         uint32_t inst = *(uint32_t*)mmu_translate_addr(m, r->pc);

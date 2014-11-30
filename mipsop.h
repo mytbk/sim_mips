@@ -161,7 +161,8 @@ typedef struct
     char *asmstr;
 } j_inst_tab;
 
-void mips_run(struct mips_regs*, struct mmu*, uint32_t);
+void mips_run(struct mips_regs*, struct mmu*, uint32_t, int debug);
+void mips_inst_exec(struct mips_regs*, struct mmu*, uint32_t);
 
 #endif    
     

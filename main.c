@@ -15,13 +15,11 @@ void sim_exit()
     
     fprintf(stderr, "%d instructions executed\n", inst_count);
     for (i=0; i<32; i++) {
-        fprintf(stderr, "reg[%d]=%x ", i, reg.regs[i]);
-        if (i%8==7) {
+        fprintf(stderr, "reg[%d]=%08x ", i, reg.regs[i]);
+        if (i%4==3) {
             fprintf(stderr, "\n");
         }
     }
-//    uint32_t* stack = mmu_translate_addr(&sim_mmu, reg.regs[29]);
-//    fprintf(stderr, "stack: %x %x %x %x\n", stack[0])
 }
 
 int main(int argc, char *argv[])
@@ -30,7 +28,7 @@ int main(int argc, char *argv[])
     struct elf32_hdr hdr;
     struct elf32_phdr phdr;
     
-    int i;
+    int i, dbg=0;
     atexit(sim_exit);
     
     fp = fopen(argv[1], "rb");
@@ -61,7 +59,11 @@ int main(int argc, char *argv[])
     fprintf(stderr, "The first instruction word: %p\n", *entry_addr);
     print_disas_string(*(mipsinst_t*)entry_addr);
 
-    mips_run(&reg, &sim_mmu, hdr.e_entry);
+    if (argc>=3 && strcmp(argv[2], "-d")==0) {
+        dbg = 1;
+    }
+    
+    mips_run(&reg, &sim_mmu, hdr.e_entry, dbg);
     
     fclose(fp);
 
