@@ -61,6 +61,19 @@ mmu_alloc_heap_stack(struct mmu *m, struct mips_regs *r)
     // and also some free space for kernel data
     mmu_alloc(m, USTKTOP-USTKSIZE, USTKSIZE*2);
     r->regs[29] = USTKTOP-16;
+    // the words on the stack is
+    // argc
+    // argv[0],...,argv[argc-1]
+    // NULL
+    // envp[0],...,NULL
+    uint32_t *sp = (uint32_t*)mmu_translate_addr(m, r->regs[29]);
+    uint32_t _argv0 = mmu_heap_alloc(m, 9);
+    char* argv0 = (char*)mmu_translate_addr(m, _argv0);
+    strcpy(argv0, "mipsprog");
+    
+    sp[0] = 1;
+    sp[1] = _argv0;
+    
     m->nextfree = USTKTOP;
 }
 
@@ -73,6 +86,7 @@ mmu_heap_alloc(struct mmu *m, uint32_t size)
     m->nextfree = (m->nextfree+3)&~3;
     return ret;
 }
+
 
 
 
