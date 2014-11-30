@@ -18,6 +18,7 @@ insttype_t get_inst_type(mipsinst_t inst)
 }
 
 extern r_inst_tab mips_r_insts[];
+extern i_inst_tab mips_i_insts[];
 
 void print_disas_string(mipsinst_t inst)
 {
@@ -32,7 +33,12 @@ void print_disas_string(mipsinst_t inst)
         }
         break;
     case I_TYPE:
+        printf(mips_i_insts[inst.i.opcode].asmstr,
+               inst.i.rs, inst.i.rt, inst.i.imm);
+        break;
+        
     case J_TYPE:
+        
     default:
         // should not go here
         break;
