@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+void print_disas_string(uint32_t inst); // from mipsinst.c
+
 void
 print_regs(struct mips_regs *r)
 {
@@ -24,7 +26,7 @@ debugger(struct mips_regs *r, struct mmu *m)
     char input[8];
     uint32_t inst;
     
-    putchar('>');
+    printf("> ");
     fgets(input, sizeof(input), stdin);
     if (input[0]!='\n') {
         memcpy(cmd, input, sizeof(input));
@@ -32,6 +34,8 @@ debugger(struct mips_regs *r, struct mmu *m)
     switch (cmd[0]) {
     case 'n':
         inst = *(uint32_t*)mmu_translate_addr(m, r->pc);
+        printf("%x: ", r->pc);
+        print_disas_string(inst);
         mips_inst_exec(r, m, inst);
         return 1;
     case 'r':
