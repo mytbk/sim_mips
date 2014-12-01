@@ -5,15 +5,14 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 void sys_uname(struct mips_regs *r, struct mmu *m)
 {
     struct utsname *name = (struct utsname*)mmu_translate_addr(m, CALLARG(r, 0));
-    strcpy(name->sysname, "Linux");
-    strcpy(name->version, "3.10");
-    strcpy(name->machine, "mipsel");
     CALLSTATE(r) = 0;
-    CALLRET(r) = 0;
+    CALLRET(r) = uname(name);
 }
 
 void sys_brk(struct mips_regs *r, struct mmu *m)
@@ -41,7 +40,15 @@ sys_setresgid(struct mips_regs *r, struct mmu *m)
     CALLRET(r) = 0;
     CALLSTATE(r) = 0;
 }
-    
+
+static void
+sys_write(struct mips_regs *r, struct mmu *m)
+{
+    void *addr = mmu_translate_addr(m, CALLARG(r, 1));
+    CALLRET(r) = write(CALLARG(r, 0), addr, CALLARG(r, 2));
+    CALLSTATE(r) = 0;
+}
+
 static void
 sys_writev(struct mips_regs *r, struct mmu *m)
 {
@@ -59,6 +66,12 @@ handle_syscall(struct mips_regs *r, struct mmu *m)
     fprintf(stderr, "syscall %d pc=0x%x\n", r->regs[2], r->pc);
     
     switch (r->regs[2]) {
+    case 4001:
+        exit(CALLARG(r, 0));
+    case 4004:
+        sys_write(r, m);
+        break;
+        
     case 4005:
         sys_open(r, m);
         break;
