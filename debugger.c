@@ -47,6 +47,13 @@ debugger(struct mips_regs *r, struct mmu *m)
         sscanf(cmd, "%s%x", op, &addr);
         printf("%x: %x\n", addr, *(uint32_t*)mmu_translate_addr(m, addr));
         return 1;
+    case 'g':
+        sscanf(cmd, "%s%x", op, &addr);
+        while (r->pc!=addr) {
+            inst = *(uint32_t*)mmu_translate_addr(m, r->pc);
+            mips_inst_exec(r, m, inst);
+        }
+        return 1;
     case 'c':
         return 0;
     default:
