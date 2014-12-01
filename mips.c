@@ -181,7 +181,7 @@ DEFUN_I(bgez, r, m, rs, rt, imm)
         // bltzal
         if (sgnrs<0) {
             exec_delayed_branch(r, m);
-            r->regs[31] = r->pc;
+            r->regs[31] = r->pc+4;
             r->pc += SIGNEXT(imm)*4;
         }
         break;
@@ -189,7 +189,7 @@ DEFUN_I(bgez, r, m, rs, rt, imm)
         // bgezal
         if (sgnrs>=0) {
             exec_delayed_branch(r, m);
-            r->regs[31] = r->pc;
+            r->regs[31] = r->pc+4;
             r->pc += SIGNEXT(imm)*4;
         }
         break;
@@ -352,7 +352,7 @@ DEFUN_J(jal, r, m, imm)
 {
     exec_delayed_branch(r, m);
     
-    r->regs[31] = r->pc;
+    r->regs[31] = r->pc+4;
     imm <<= 2;
     r->pc &= 0xf0000000;
     r->pc |= imm;
