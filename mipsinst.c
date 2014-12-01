@@ -45,7 +45,7 @@ print_disas_string(mipsinst_t inst)
             
         default:
             printf(mips_i_insts[inst.i.opcode].asmstr,
-                   inst.i.rs, inst.i.rt, inst.i.imm);
+                   inst.i.rt, inst.i.rs, inst.i.imm);
             break;
         }
         

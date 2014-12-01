@@ -17,6 +17,7 @@ print_regs(struct mips_regs *r)
             fprintf(stderr, "\n");
         }
     }
+    fprintf(stderr, "pc=%08x\n", r->pc);
 }
 
 int
