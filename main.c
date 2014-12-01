@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     
     fp = fopen(argv[1], "rb");
     fread(&hdr, sizeof(hdr), 1, fp);
-    printf("entry point: %p\n", hdr.e_entry);
+    fprintf(stderr, "entry point: %p\n", hdr.e_entry);
     fseek(fp, hdr.e_phoff, SEEK_SET);
     
     mmu_init(&sim_mmu);

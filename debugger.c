@@ -36,7 +36,7 @@ debugger(struct mips_regs *r, struct mmu *m)
     switch (cmd[0]) {
     case 'n':
         inst = *(uint32_t*)mmu_translate_addr(m, r->pc);
-        printf("%x: ", r->pc);
+        fprintf(stderr, "%x: ", r->pc);
         print_disas_string(inst);
         mips_inst_exec(r, m, inst);
         return 1;
@@ -45,7 +45,7 @@ debugger(struct mips_regs *r, struct mmu *m)
         return 1;
     case 'x':
         sscanf(cmd, "%s%x", op, &addr);
-        printf("%x: %x\n", addr, *(uint32_t*)mmu_translate_addr(m, addr));
+        fprintf(stderr, "%x: %x\n", addr, *(uint32_t*)mmu_translate_addr(m, addr));
         return 1;
     case 'g':
         sscanf(cmd, "%s%x", op, &addr);
