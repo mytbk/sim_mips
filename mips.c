@@ -442,7 +442,6 @@ mips_run(struct mips_regs *r, struct mmu *m, uint32_t entry_addr, int debug)
     extern int inst_count;
 
     mmu_alloc_heap_stack(m, r);
-    r->regs[29] -= 16;
     
     r->pc = entry_addr;
 
