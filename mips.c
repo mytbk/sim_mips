@@ -332,12 +332,10 @@ i_inst_tab mips_i_insts[64] =
     [MI_ORI] { NULL, "ori $%d, $%d, %x" },
     [MI_XORI] { NULL, "xori $%d, $%d, %x" },
     [MI_LUI] { lui, "lui $%d, %x" },
-    [MI_LB] { lb, "lb $%d, $%d, %x" },
-    
-    [MI_LW] { lw, "lw $%d, $%d, %x" },
-    [MI_SB] { sb, "sb $%d, $%d, %x" },
-    
-    [MI_SW] { sw, "sw $%d, $%d, %x" },
+    [MI_LB] { lb, "lb $%d, %d($%d)" },
+    [MI_LW] { lw, "lw $%d, %d($%d)" },
+    [MI_SB] { sb, "sb $%d, %d($%d)" },
+    [MI_SW] { sw, "sw $%d, %d($%d)" },
 };
 
 /* begin J instructions */
