@@ -22,10 +22,11 @@ print_regs(struct mips_regs *r)
 int
 debugger(struct mips_regs *r, struct mmu *m)
 {
-    static char cmd[8];
-    char input[8];
+    static char cmd[16];
+    char input[16], op[8];
     uint32_t inst;
-    
+    uint32_t addr;
+        
     printf("> ");
     fgets(input, sizeof(input), stdin);
     if (input[0]!='\n') {
@@ -40,6 +41,10 @@ debugger(struct mips_regs *r, struct mmu *m)
         return 1;
     case 'r':
         print_regs(r);
+        return 1;
+    case 'x':
+        sscanf(cmd, "%s%x", op, &addr);
+        printf("%x: %x\n", addr, *(uint32_t*)mmu_translate_addr(m, addr));
         return 1;
     case 'c':
         return 0;
