@@ -253,10 +253,14 @@ DEFUN_I(andi, r, m, rs, rt, imm)
 
 DEFUN_I(ori, r, m, rs, rt, imm)
 {
+    uint32_t t1 = imm;
+    r->regs[rt] = r->regs[rs] | t1;
 }
 
 DEFUN_I(xori, r, m, rs, rt, imm)
 {
+    uint32_t t1 = imm;
+    r->regs[rt] = r->regs[rs] ^ t1;
 }
 
 DEFUN_I(lb, r, m, rs, rt, imm)
@@ -304,15 +308,51 @@ DEFUN_I(lbu, r, m, rs, rt, imm)
     }
 }
 
+DEFUN_I(lhu, r, m, rs, rt, imm)
+{
+    uint32_t va = r->regs[rs]+SIGNEXT(imm);
+    uint16_t *addr = (unsigned char*)mmu_translate_addr(m, va);
+    if (addr==NULL) {
+        fprintf(stderr, "error: lhu: target address %x not exist, pc=%x\n", va, r->pc);
+        exit(1);
+    } else {
+        r->regs[rt] = *addr;
+    }
+}
+
 DEFUN_I(sb, r, m, rs, rt, imm)
 {
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     char *my_addr = (char*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
-        fprintf(stderr, "error: lw: target address %x not exist, pc=%x\n", addr, r->pc);
+        fprintf(stderr, "error: sb: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
     } else {
         *my_addr = r->regs[rt];
+    }
+}
+
+DEFUN_I(sh, r, m, rs, rt, imm)
+{
+    uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    uint16_t *my_addr = (char*)mmu_translate_addr(m, addr);
+    if (my_addr==NULL) {
+        fprintf(stderr, "error: sh: target address %x not exist, pc=%x\n", addr, r->pc);
+        exit(1);
+    } else {
+        *my_addr = r->regs[rt];
+    }
+}
+
+DEFUN_I(swl, r, m, rs, rt, imm)
+{
+    uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    uint16_t *my_addr = (char*)mmu_translate_addr(m, addr);
+    if (my_addr==NULL) {
+        fprintf(stderr, "error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
+        exit(1);
+    } else {
+        *my_addr = r->regs[rt]>>16;
     }
 }
 
@@ -322,6 +362,18 @@ DEFUN_I(sw, r, m, rs, rt, imm)
     uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         fprintf(stderr, "error: sw: target address %p not exist, pc=%p\n", addr, r->pc);
+        exit(1);
+    } else {
+        *my_addr = r->regs[rt];
+    }
+}
+
+DEFUN_I(swr, r, m, rs, rt, imm)
+{
+    uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    uint16_t *my_addr = (char*)mmu_translate_addr(m, addr);
+    if (my_addr==NULL) {
+        fprintf(stderr, "error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
     } else {
         *my_addr = r->regs[rt];
@@ -341,15 +393,20 @@ i_inst_tab mips_i_insts[64] =
     [MI_SLTIU] { sltiu, "sltiu $%d, $%d, %d" },
     
     [MI_ANDI] { andi, "andi $%d, $%d, %x" },
-    [MI_ORI] { NULL, "ori $%d, $%d, %x" },
-    [MI_XORI] { NULL, "xori $%d, $%d, %x" },
+    [MI_ORI] { ori, "ori $%d, $%d, %x" },
+    [MI_XORI] { xori, "xori $%d, $%d, %x" },
     [MI_LUI] { lui, "lui $%d, %x" },
     [MI_LB] { lb, "lb $%d, %d($%d)" },
     [MI_LW] { lw, "lw $%d, %d($%d)" },
     [MI_LBU] { lbu, "lbu $%d, %d($%d)" },
+    [MI_LHU] { lhu, "lhu $%d, %d($%d)" },
     
     [MI_SB] { sb, "sb $%d, %d($%d)" },
+    [MI_SH] { sh, "sh $%d, %d($%d)" },
+    [MI_SWL] { swl, "swl $%d, %d($%d)" },    
     [MI_SW] { sw, "sw $%d, %d($%d)" },
+    [MI_SWR] { swr, "swr $%d, %d($%d)" }
+    
 };
 
 /* begin J instructions */
