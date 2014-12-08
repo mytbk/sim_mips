@@ -111,6 +111,13 @@ DEFUN_R(mult, r, m, rs, rt, rd, shamt)
     r->hi = *(((int*)&result)+1);
 }
 
+DEFUN_R(mips_div, r, m, rs, rt, rd, shamt)
+{
+    int s=r->regs[rs], t=r->regs[rt];
+    r->hi = s%t;
+    r->lo = s/t;
+}
+
 DEFUN_R(mfhi, r, m, rs, rt, rd, shamt)
 {
     r->regs[rd] = r->hi;
@@ -142,6 +149,8 @@ r_inst_tab mips_r_insts[64] =
     [MR_MFLO] { mflo, "mflo $%d" },
     [MR_MTLO] { mflo, "mtlo $%d" },
     [MR_MULT] { mult, "mult $%d, $%d" },
+    [MR_DIV] { mips_div, "div $%d, $%d" },
+    
     [MR_SLL] { sll, "sll $%d, $%d, %d" },
     [MR_SRL] { srl, "srl $%d, $%d, %d" },
     [MR_ADD] { add, "add $%d, $%d, $%d" },
@@ -219,6 +228,15 @@ DEFUN_I(blez, r, m, rs, rt, imm)
 {
     int t=r->regs[rs];
     if (t<=0) {
+        exec_delayed_branch(r, m);
+        r->pc += SIGNEXT(imm)*4;
+    }
+}
+
+DEFUN_I(bgtz, r, m, rs, rt, imm)
+{
+    int t=r->regs[rs];
+    if (t>0) {
         exec_delayed_branch(r, m);
         r->pc += SIGNEXT(imm)*4;
     }
@@ -386,6 +404,8 @@ i_inst_tab mips_i_insts[64] =
     [MI_BEQ] { beq, "beq $%d, $%d, %x" },
     [MI_BNE] { bne, "bne $%d, $%d, %x" },
     [MI_BLEZ] { blez, "blez $%d, $%d" },
+    [MI_BGTZ] { bgtz, "bgtz $%d, $d" },
+    
     [MI_ADDI] { addi, "addi $%d, $%d, %d" },
     [MI_ADDIU] { addiu, "addiu $%d, $%d, %d" },
     [MI_SLTI] { slti, "slti $%d, $%d, %d" },
