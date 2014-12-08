@@ -62,6 +62,13 @@ sys_writev(struct mips_regs *r, struct mmu *m)
 }
 
 static void
+sys_time(struct mips_regs *r, struct mmu *m)
+{
+    CALLRET(r) = time(CALLARG(r, 0));
+    CALLSTATE(r) = 0;
+}
+
+static void
 sys_clock_gettime(struct mips_regs *r, struct mmu *m)
 {
     struct timespec *tp = (struct timespec *)mmu_translate_addr(m, CALLARG(r, 1));
@@ -84,6 +91,10 @@ handle_syscall(struct mips_regs *r, struct mmu *m)
     case 4005:
         sys_open(r, m);
         break;
+    case 4013:
+        sys_time(r, m);
+        break;
+        
     case 4146:
         sys_writev(r, m);
         break;
