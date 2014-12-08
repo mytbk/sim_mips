@@ -39,10 +39,13 @@ FILE
     if (*mode=='w') {
         fd = _creat(name, PERMS);
     } else if (*mode=='a') {
+        /* currently not supported */
+        /*
         if ((fd=open(name, O_WRONLY, 0))==-1) {
             fd = _creat(name, PERMS);
         }
         lseek(fd, 0L, 2);
+        */
     } else {
         fd = open(name, O_WRONLY, 0);
     }
@@ -58,22 +61,32 @@ FILE
     return fp;
 }
 
+/* we just implement a very simple unbuffered stdio */
+
 int
 fwrite(const void *ptr, unsigned long size, unsigned long nmemb, FILE *stream)
 {
     return write(stream->fd, (char*)ptr, size*nmemb);
 }
 
-    
+int    
+fclose(FILE *fp)
+{
+}
 
-    
+int
+getchar()
+{
+}
 
+int
+fputc(int c, FILE *stream)
+{
+    return write(stream->fd, (char*)&c, 1);
+}
 
-
-
-
-
-
-
-
-
+int
+putchar(int c)
+{
+    return write(1, (char*)&c, 1);
+}
