@@ -8,13 +8,13 @@
 #define USTKTOP (0xc0000000)
 #define PGSIZE 4096
 
-static inline
+static inline uint32_t
 ROUNDDOWN(x, n)
 {
     return x-x%n;
 }
 
-static inline
+static inline uint32_t
 ROUNDUP(x, n)
 {
     return ROUNDDOWN(x+n-1, n);
