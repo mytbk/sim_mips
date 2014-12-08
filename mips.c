@@ -262,7 +262,7 @@ DEFUN_I(xori, r, m, rs, rt, imm)
 DEFUN_I(lb, r, m, rs, rt, imm)
 {
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
-    unsigned char *addr = (unsigned char*)mmu_translate_addr(m, va);
+    char *addr = (unsigned char*)mmu_translate_addr(m, va);
     if (addr==NULL) {
         fprintf(stderr, "error: lb: target address %x not exist, pc=%x\n", va, r->pc);
         exit(1);
@@ -289,6 +289,18 @@ DEFUN_I(lw, r, m, rs, rt, imm)
         exit(1);
     } else {
         r->regs[rt] = *my_addr;
+    }
+}
+
+DEFUN_I(lbu, r, m, rs, rt, imm)
+{
+    uint32_t va = r->regs[rs]+SIGNEXT(imm);
+    unsigned char *addr = (unsigned char*)mmu_translate_addr(m, va);
+    if (addr==NULL) {
+        fprintf(stderr, "error: lbu: target address %x not exist, pc=%x\n", va, r->pc);
+        exit(1);
+    } else {
+        r->regs[rt] = *addr;
     }
 }
 
@@ -334,6 +346,8 @@ i_inst_tab mips_i_insts[64] =
     [MI_LUI] { lui, "lui $%d, %x" },
     [MI_LB] { lb, "lb $%d, %d($%d)" },
     [MI_LW] { lw, "lw $%d, %d($%d)" },
+    [MI_LBU] { lbu, "lbu $%d, %d($%d)" },
+    
     [MI_SB] { sb, "sb $%d, %d($%d)" },
     [MI_SW] { sw, "sw $%d, %d($%d)" },
 };

@@ -39,6 +39,7 @@ print_disas_string(mipsinst_t inst)
         case MI_LW:
         case MI_SB:
         case MI_LB:
+        case MI_LBU:
             fprintf(stderr, mips_i_insts[inst.i.opcode].asmstr,
                     inst.i.rt, inst.i.imm, inst.i.rs);
             break;
