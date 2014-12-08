@@ -20,4 +20,10 @@ clock_gettime:
         syscall
         jr $ra
         nop
+
+        .globl time
+time:   addi $v0, $0, 4013
+        syscall
+        jr $ra
+        nop
         
