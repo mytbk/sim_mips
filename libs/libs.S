@@ -14,3 +14,10 @@ open:   addi $v0, $0, 4005
         jr $ra
         nop
         
+        .globl clock_gettime
+clock_gettime:
+        addi $v0, $0, 4263
+        syscall
+        jr $ra
+        nop
+        

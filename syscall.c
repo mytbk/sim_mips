@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 void sys_uname(struct mips_regs *r, struct mmu *m)
 {
@@ -60,6 +61,14 @@ sys_writev(struct mips_regs *r, struct mmu *m)
     CALLSTATE(r) = 0;
 }
 
+static void
+sys_clock_gettime(struct mips_regs *r, struct mmu *m)
+{
+    struct timespec *tp = (struct timespec *)mmu_translate_addr(m, CALLARG(r, 1));
+    CALLRET(r) = clock_gettime(CALLARG(r, 0), tp);
+    CALLSTATE(r) = 0;
+}
+
 void
 handle_syscall(struct mips_regs *r, struct mmu *m)
 {
@@ -88,6 +97,9 @@ handle_syscall(struct mips_regs *r, struct mmu *m)
         
     case 4122: // sys_newuname
         sys_uname(r, m);
+        break;
+    case 4263:
+        sys_clock_gettime(r, m);
         break;
         
     default:
