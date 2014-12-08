@@ -64,7 +64,8 @@ sys_writev(struct mips_regs *r, struct mmu *m)
 static void
 sys_time(struct mips_regs *r, struct mmu *m)
 {
-    CALLRET(r) = time(CALLARG(r, 0));
+    time_t *tloc = (time_t*)mmu_translate_addr(m, CALLARG(r, 0));
+    CALLRET(r) = time(tloc);
     CALLSTATE(r) = 0;
 }
 
