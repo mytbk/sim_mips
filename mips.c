@@ -147,7 +147,7 @@ r_inst_tab mips_r_insts[64] =
     [MR_MFHI] { mfhi, "mfhi $%d" },
     [MR_MTHI] { mthi, "mthi $%d" },
     [MR_MFLO] { mflo, "mflo $%d" },
-    [MR_MTLO] { mflo, "mtlo $%d" },
+    [MR_MTLO] { mtlo, "mtlo $%d" },
     [MR_MULT] { mult, "mult $%d, $%d" },
     [MR_DIV] { mips_div, "div $%d, $%d" },
     
