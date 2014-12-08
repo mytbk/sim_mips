@@ -12,8 +12,9 @@ bin/hello: hello/hello.o ../libs/libs.a
 bin/dhrystone2: $(DHRY2_OBJS) ../libs/libs.a
 	$(LD) -o bin/dhrystone2 $(DHRY2_OBJS) ../libs/libs.a
 
-hello.o: hello/hello.c
-	$(CC) -c -o hello.o hello/hello.c
-
 ../libs/libs.a:
 	make -C ../libs
+
+.PHONY: clean
+clean:
+	rm -f hello/hello.o $(DHRY2_OBJS)
