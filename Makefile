@@ -9,5 +9,5 @@ main: $(OBJS)
 clean:
 	rm -f main $(OBJS)
 	make -C libs clean
-	make -C examples clean
+	make -C example clean
 
