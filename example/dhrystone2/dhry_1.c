@@ -17,10 +17,10 @@
  *     #define options not used
  */
 
- #include <time.h>
- #include <stdlib.h>
- #include <stdio.h>
- #include "dhry.h"
+#include "libs.h"
+#include "file.h"
+#include "printf.h"
+#include "dhry.h"
 #include "cpuidh.h"
  #ifdef CNNT
     #define options   "Non-optimised"
@@ -79,9 +79,9 @@ int             Int_Glob;
  #define Too_Small_Time 2
                  /* Measurements should last at least 2 seconds */
  
- double         User_Time;
+ long         User_Time;
  
- double          Microseconds,
+ long          Microseconds,
                  Dhrystones_Per_Second,
                  Vax_Mips;
  
@@ -128,8 +128,6 @@ int             Int_Glob;
    if ((Ap = fopen("Dhry.txt","a+")) == NULL)
      {
         printf(" Can not open Dhry.txt\n\n");
-        printf(" Press Enter\n\n");
-        int g = getchar();
         exit(1);
      }
 
@@ -154,12 +152,6 @@ int             Int_Glob;
          /* Warning: With 16-Bit processors and Number_Of_Runs > 32000, */
          /* overflow may occur for this array element.                  */
  
-    getDetails();
-    for (i=1; i<10; i++)
-    {
-        printf("%s\n", configdata[i]);
-    }
-    printf("\n");
 
     fprintf (Ap, " #####################################################\n\n");                     
     for (i=1; i<10; i++)
@@ -182,28 +174,6 @@ int             Int_Glob;
        strcpy(Reg_Define, "Register option  Not selected.");
    #endif                 "Register option      Selected."
 
- /*  
-   if (Reg)
-   {
-     printf ("Program compiled with 'register' attribute\n");
-     printf ("\n");
-   }
-   else
-   {
-     printf ("Program compiled without 'register' attribute\n");
-     printf ("\n");
-   }
-
-   printf ("Please give the number of runs through the benchmark: ");
-   {
-     int n;
-     scanf ("%d", &n);
-     Number_Of_Runs = n;
-   }   
-   printf ("\n"); 
-   printf ("Execution starts, %d runs through Dhrystone\n",
-                                                 Number_Of_Runs);
- */
 
    Number_Of_Runs = 5000;
 
@@ -273,17 +243,14 @@ int             Int_Glob;
        end_time();
        User_Time = secs;
              
-       printf ("%12.0f runs %6.2f seconds \n",(double) Number_Of_Runs, User_Time);
+       printf ("%d runs %d seconds \n",Number_Of_Runs, User_Time);
        if (User_Time > 2)
        {
              count = 0;
        }
        else
        {
-             if (User_Time < 0.05)
-             {
-                  Number_Of_Runs = Number_Of_Runs * 5;
-             }
+           Number_Of_Runs = Number_Of_Runs * 5;
        }
    }   /* calibrate/run do while */
    while (count >0);
@@ -428,38 +395,26 @@ int             Int_Glob;
    else
    {
      Microseconds = User_Time * Mic_secs_Per_Second 
-                         / (double) Number_Of_Runs;
-     Dhrystones_Per_Second = (double) Number_Of_Runs / User_Time;
-     Vax_Mips = Dhrystones_Per_Second / 1757.0;
+                         / Number_Of_Runs;
+     Dhrystones_Per_Second = Number_Of_Runs / User_Time;
+     Vax_Mips = Dhrystones_Per_Second / 1757;
  
      printf ("Microseconds for one run through Dhrystone: ");
-     printf ("%12.2lf \n", Microseconds);
+     printf ("%d \n", Microseconds);
      printf ("Dhrystones per Second:                      ");
-     printf ("%10.0lf \n", Dhrystones_Per_Second);
+     printf ("%d \n", Dhrystones_Per_Second);
      printf ("VAX  MIPS rating =                          ");
-     printf ("%12.2lf \n",Vax_Mips);
+     printf ("%d \n",Vax_Mips);
      printf ("\n");
 
 
 /************************************************************************
  *                Add results to output file Dhry.txt                   *
  ************************************************************************/
-   local_time();
+//   local_time();
    fprintf (Ap, " #####################################################\n\n");                     
    fprintf (Ap, " Dhrystone Benchmark 2.1 %s via C/C++ %s\n", options, timeday);
-   fprintf (Ap, " VAX MIPS rating:      %12.2lf\n\n",Vax_Mips);
-
-//   fprintf(Ap, " Classic Benchmark Ratings for CPUSpeed.txt where 100 MHz Pentium = 100\n");
-/*
-   if (strtol(opt, NULL, 10) == 1)
-   {
-       fprintf(Ap, " Integer Dhry2 Opt %d\n\n", (int)(Vax_Mips / 130 * 100)); 
-   }
-   else
-   {
-       fprintf(Ap, " Integer Dhry2 NoOpt %d\n\n", (int)(Vax_Mips / 32 * 100)); 
-   }
-*/   
+   fprintf (Ap, " VAX MIPS rating:      %d\n\n",Vax_Mips);
 
    if (Int_Glob != 5)
    {
@@ -572,11 +527,6 @@ int             Int_Glob;
                  
    fclose(Ap);
    }
-    if (nopause)
-    {
-       printf(" Press Enter\n\n");
-       int g = getchar();
-    }
  }
  
  void Proc_1 (REG Rec_Pointer Ptr_Val_Par)

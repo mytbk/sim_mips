@@ -238,13 +238,8 @@
                 /* Use times(2) time function unless    */
                 /* explicitly defined otherwise         */
 
-#ifdef TIMES
-/* #include <sys/types.h> 
-   #include <sys/times.h> */
-                /* for "times" */
-#endif
 
-#define Mic_secs_Per_Second     1000000.0
+#define Mic_secs_Per_Second     1000000
                 /* Berkeley UNIX C returns process times in seconds/HZ */
 
 #ifdef  NOSTRUCTASSIGN
@@ -268,9 +263,7 @@
 
 /* General definitions: */
 
-#include <stdio.h>
-#include <string.h>
-
+#include "libs.h"
                 /* for strcpy, strcmp */
 
 #define Null 0 
