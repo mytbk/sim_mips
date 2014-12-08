@@ -1,8 +1,14 @@
 #ifndef FILE_H
 #define FILE_H
 
+#ifndef NULL
 #define NULL 0
+#endif
+
+#ifndef EOF
 #define EOF (-1)
+#endif
+
 #define BUFSIZ 1024
 #define OPEN_MAX 20
 
