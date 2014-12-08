@@ -284,7 +284,7 @@ DEFUN_I(xori, r, m, rs, rt, imm)
 DEFUN_I(lb, r, m, rs, rt, imm)
 {
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
-    char *addr = (unsigned char*)mmu_translate_addr(m, va);
+    char *addr = (char*)mmu_translate_addr(m, va);
     if (addr==NULL) {
         fprintf(stderr, "error: lb: target address %x not exist, pc=%x\n", va, r->pc);
         exit(1);
@@ -329,7 +329,7 @@ DEFUN_I(lbu, r, m, rs, rt, imm)
 DEFUN_I(lhu, r, m, rs, rt, imm)
 {
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
-    uint16_t *addr = (unsigned char*)mmu_translate_addr(m, va);
+    uint16_t *addr = (uint16_t*)mmu_translate_addr(m, va);
     if (addr==NULL) {
         fprintf(stderr, "error: lhu: target address %x not exist, pc=%x\n", va, r->pc);
         exit(1);
@@ -353,7 +353,7 @@ DEFUN_I(sb, r, m, rs, rt, imm)
 DEFUN_I(sh, r, m, rs, rt, imm)
 {
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
-    uint16_t *my_addr = (char*)mmu_translate_addr(m, addr);
+    uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         fprintf(stderr, "error: sh: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
@@ -365,7 +365,7 @@ DEFUN_I(sh, r, m, rs, rt, imm)
 DEFUN_I(swl, r, m, rs, rt, imm)
 {
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
-    uint16_t *my_addr = (char*)mmu_translate_addr(m, addr);
+    uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         fprintf(stderr, "error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
@@ -379,7 +379,7 @@ DEFUN_I(sw, r, m, rs, rt, imm)
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
-        fprintf(stderr, "error: sw: target address %p not exist, pc=%p\n", addr, r->pc);
+        fprintf(stderr, "error: sw: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
     } else {
         *my_addr = r->regs[rt];
@@ -389,7 +389,7 @@ DEFUN_I(sw, r, m, rs, rt, imm)
 DEFUN_I(swr, r, m, rs, rt, imm)
 {
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
-    uint16_t *my_addr = (char*)mmu_translate_addr(m, addr);
+    uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         fprintf(stderr, "error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
@@ -464,7 +464,7 @@ r_inst(struct mips_regs *reg, struct mmu *m, int rs, int rt, int rd,
     if (mips_r_insts[funct].exec_r_inst) {
         mips_r_insts[funct].exec_r_inst(reg, m, rs, rt, rd, shamt);
     } else {
-        fprintf(stderr, "unknown R-instruction, funct=%d pc=%p\n", funct, reg->pc);
+        fprintf(stderr, "unknown R-instruction, funct=%d pc=%x\n", funct, reg->pc);
         exit(1);
     }
 }
@@ -476,7 +476,7 @@ void i_inst(struct mips_regs *reg, struct mmu *m, int opcode, int rs, int rt, in
     if (mips_i_insts[opcode].exec_i_inst) {
         mips_i_insts[opcode].exec_i_inst(reg, m, rs, rt, imm);
     } else {
-        fprintf(stderr, "unknown I-instruction, opcode=%d pc=%p\n", opcode, reg->pc);
+        fprintf(stderr, "unknown I-instruction, opcode=%d pc=%x\n", opcode, reg->pc);
         exit(1);
     }
 }
@@ -488,7 +488,7 @@ void j_inst(struct mips_regs *reg, struct mmu *m, int opcode, int imm)
     if (mips_j_insts[opcode].exec_j_inst) {
         mips_j_insts[opcode].exec_j_inst(reg, m, imm);
     } else {
-        fprintf(stderr, "unknown J-instruction, opcode=%d pc=%p\n", opcode, reg->pc);
+        fprintf(stderr, "unknown J-instruction, opcode=%d pc=%x\n", opcode, reg->pc);
         exit(1);
     }
 }
@@ -520,7 +520,7 @@ mips_inst_exec(struct mips_regs *reg, struct mmu *m, uint32_t inst)
 static void statechk(struct mips_regs *r)
 {
     if (r->regs[0]!=0) {
-        fprintf(stderr, "warning: pc=%p $0!=0, setting $0=0\n", r->pc);
+        fprintf(stderr, "warning: pc=%x $0!=0, setting $0=0\n", r->pc);
         r->regs[0] = 0;
     }
 }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <linux/elf.h>
 #include "mmu.h"
 #include "mipsop.h"
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
     
     fp = fopen(argv[1], "rb");
     fread(&hdr, sizeof(hdr), 1, fp);
-    fprintf(stderr, "entry point: %p\n", hdr.e_entry);
+    fprintf(stderr, "entry point: %x\n", hdr.e_entry);
     fseek(fp, hdr.e_phoff, SEEK_SET);
     
     mmu_init(&sim_mmu);
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
     }
     
     uint32_t *entry_addr = (uint32_t*)mmu_translate_addr(&sim_mmu, hdr.e_entry);
-    fprintf(stderr, "The first instruction word: %p\n", *entry_addr);
+    fprintf(stderr, "The first instruction word: %x\n", *entry_addr);
     print_disas_string(*(mipsinst_t*)entry_addr);
 
     if (argc>=3 && strcmp(argv[2], "-d")==0) {
