@@ -79,11 +79,14 @@ sys_clock_gettime(struct mips_regs *r, struct mmu *m)
 void
 handle_syscall(struct mips_regs *r, struct mmu *m)
 {
+    int n;
     fprintf(stderr, "syscall %d pc=0x%x\n", r->regs[2], r->pc);
     
     switch (r->regs[2]) {
     case 4001:
-        exit(CALLARG(r, 0));
+        n = CALLARG(r, 0);
+        fprintf(stderr, "program exiting, exit code=%d\n", n);
+        exit(n);
     case 4004:
         sys_write(r, m);
         break;
