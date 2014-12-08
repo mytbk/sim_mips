@@ -8,3 +8,9 @@ write:  addi $v0, $0, 4004
 exit:   addi $v0, $0, 4001
         syscall
         
+        .globl open
+open:   addi $v0, $0, 4005
+        syscall
+        jr $ra
+        nop
+        
