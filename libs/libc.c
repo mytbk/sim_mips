@@ -8,3 +8,7 @@ int puts(char *s)
     return l+1;
 }
 
+void niluse() 
+{
+    return;
+}

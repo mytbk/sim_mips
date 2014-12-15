@@ -9,4 +9,7 @@ int strlen(char *s);
 int strcmp(char *s, char *t);
 char* strcpy(char *dst, const char *src);
 
+// add a function that's no use
+void niluse();
+
 #endif
