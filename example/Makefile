@@ -12,6 +12,9 @@ bin/hello: hello/hello.o ../libs/libs.a
 bin/dhrystone2: $(DHRY2_OBJS) ../libs/libs.a
 	$(LD) -o bin/dhrystone2 $(DHRY2_OBJS) ../libs/libs.a
 
+bin/libtest: libtest/libtest.o ../libs/libs.a
+	$(LD) -o bin/libtest libtest/libtest.o ../libs/libs.a
+
 ../libs/libs.a:
 	make -C ../libs
 
