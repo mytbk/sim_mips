@@ -20,4 +20,4 @@ bin/libtest: libtest/libtest.o ../libs/libs.a
 
 .PHONY: clean
 clean:
-	rm -f hello/hello.o $(DHRY2_OBJS)
+	rm -f hello/hello.o $(DHRY2_OBJS) libtest/libtest.o
