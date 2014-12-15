@@ -26,10 +26,10 @@ print_disas_string(mipsinst_t inst)
     switch (get_inst_type(inst)) {
     case R_TYPE:
         if (inst.r.funct==MR_SLL || inst.r.funct==MR_SRL) {
-            fprintf(stderr, mips_r_insts[inst.r.funct].asmstr,
+            log_msg(mips_r_insts[inst.r.funct].asmstr,
                     inst.r.rd, inst.r.rt, inst.r.sa);
         } else {
-            fprintf(stderr, mips_r_insts[inst.r.funct].asmstr,
+            log_msg(mips_r_insts[inst.r.funct].asmstr,
                     inst.r.rd, inst.r.rs, inst.r.rt);
         }
         break;
@@ -40,12 +40,12 @@ print_disas_string(mipsinst_t inst)
         case MI_SB:
         case MI_LB:
         case MI_LBU:
-            fprintf(stderr, mips_i_insts[inst.i.opcode].asmstr,
+            log_msg(mips_i_insts[inst.i.opcode].asmstr,
                     inst.i.rt, inst.i.imm, inst.i.rs);
             break;
             
         default:
-            fprintf(stderr, mips_i_insts[inst.i.opcode].asmstr,
+            log_msg(mips_i_insts[inst.i.opcode].asmstr,
                     inst.i.rt, inst.i.rs, inst.i.imm);
             break;
         }
@@ -56,7 +56,7 @@ print_disas_string(mipsinst_t inst)
         // should not go here
         break;
     }
-    fprintf(stderr, "\n");
+    log_msg("\n");
 }
 
 

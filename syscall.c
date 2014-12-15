@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include "simerr.h"
 #include <sys/utsname.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
@@ -18,7 +19,7 @@ void sys_uname(struct mips_regs *r, struct mmu *m)
 
 void sys_brk(struct mips_regs *r, struct mmu *m)
 {
-    fprintf(stderr, "sys_brk: %x\n", CALLARG(r, 0));
+    log_msg("sys_brk: %x\n", CALLARG(r, 0));
     
     CALLRET(r) = mmu_set_brk(m, m->brk+CALLARG(r,0));
     CALLSTATE(r) = 0;
@@ -37,7 +38,7 @@ sys_open(struct mips_regs *r, struct mmu *m)
 static void
 sys_setresgid(struct mips_regs *r, struct mmu *m)
 {
-    fprintf(stderr, "ignore sys_setresgid\n");
+    log_msg("ignore sys_setresgid\n");
     CALLRET(r) = 0;
     CALLSTATE(r) = 0;
 }
@@ -81,12 +82,12 @@ void
 handle_syscall(struct mips_regs *r, struct mmu *m)
 {
     int n;
-    fprintf(stderr, "syscall %d pc=0x%x\n", r->regs[2], r->pc);
+    log_msg("syscall %d pc=0x%x\n", r->regs[2], r->pc);
     
     switch (r->regs[2]) {
     case 4001:
         n = CALLARG(r, 0);
-        fprintf(stderr, "program exiting, exit code=%d\n", n);
+        log_msg("program exiting, exit code=%d\n", n);
         exit(n);
     case 4004:
         sys_write(r, m);
@@ -118,7 +119,7 @@ handle_syscall(struct mips_regs *r, struct mmu *m)
         break;
         
     default:
-        fprintf(stderr, "syscall %d unhandled\n", r->regs[2]);
+        log_msg("syscall %d unhandled\n", r->regs[2]);
         break;
         
     }

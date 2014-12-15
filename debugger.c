@@ -62,6 +62,3 @@ debugger(struct mips_regs *r, struct mmu *m)
     }
 }
 
-
-
-

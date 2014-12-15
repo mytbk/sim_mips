@@ -4,6 +4,8 @@
 #include <linux/elf.h>
 #include "mmu.h"
 #include "mipsop.h"
+#include "simerr.h"
+
 void print_disas_string(mipsinst_t);
 
 struct mmu sim_mmu;
@@ -14,13 +16,14 @@ void sim_exit()
 {
     int i;
     
-    fprintf(stderr, "%d instructions executed\n", inst_count);
+    log_msg("%d instructions executed\n", inst_count);
     for (i=0; i<32; i++) {
-        fprintf(stderr, "reg[%d]=%08x ", i, reg.regs[i]);
+        log_msg("reg[%d]=%08x ", i, reg.regs[i]);
         if (i%4==3) {
-            fprintf(stderr, "\n");
+            log_msg("\n");
         }
     }
+    log_end();
 }
 
 int main(int argc, char *argv[])
@@ -30,11 +33,13 @@ int main(int argc, char *argv[])
     struct elf32_phdr phdr;
     
     int i, dbg=0;
+
+    log_init();
     atexit(sim_exit);
     
     fp = fopen(argv[1], "rb");
     fread(&hdr, sizeof(hdr), 1, fp);
-    fprintf(stderr, "entry point: %x\n", hdr.e_entry);
+    log_msg("entry point: %x\n", hdr.e_entry);
     fseek(fp, hdr.e_phoff, SEEK_SET);
     
     mmu_init(&sim_mmu);
@@ -53,11 +58,11 @@ int main(int argc, char *argv[])
         fseek(fp, pos, SEEK_SET);
         mmu_set_brk(&sim_mmu, phdr.p_vaddr+phdr.p_memsz);
         
-        fprintf(stderr, "Loaded segment type: %d\n", phdr.p_type);
+        log_msg("Loaded segment type: %d\n", phdr.p_type);
     }
     
     uint32_t *entry_addr = (uint32_t*)mmu_translate_addr(&sim_mmu, hdr.e_entry);
-    fprintf(stderr, "The first instruction word: %x\n", *entry_addr);
+    log_msg("The first instruction word: %x\n", *entry_addr);
     print_disas_string(*(mipsinst_t*)entry_addr);
 
     if (argc>=3 && strcmp(argv[2], "-d")==0) {
