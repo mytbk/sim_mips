@@ -5,6 +5,7 @@
 #include "syscall.h"
 #include "debugger.h"
 #include "simerr.h"
+#include "state.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,12 +20,16 @@ exec_delayed_branch(struct mips_regs *r, struct mmu *m)
 /* begin R instructions */
 DEFUN_R(jr, r, m, rs, rt, rd, shamt)
 {
+    State.nJump++;
+    
     exec_delayed_branch(r, m);
     r->pc = r->regs[rs];
 }
 
 DEFUN_R(jalr, r, m, rs, rt, rd, shamt)
 {
+    State.nJump++;
+    
     exec_delayed_branch(r, m);
     r->regs[rd] = r->pc+4;
     r->pc = r->regs[rs];
@@ -32,6 +37,8 @@ DEFUN_R(jalr, r, m, rs, rt, rd, shamt)
 
 DEFUN_R(syscall, r, m, rs, rt, rd, shamt)
 {
+    State.nSyscall++;
+    
     handle_syscall(r, m);
 }
 
@@ -170,6 +177,8 @@ r_inst_tab mips_r_insts[64] =
 
 DEFUN_I(bgez, r, m, rs, rt, imm)
 {
+    State.nBranch++;
+    
     int sgnrs = r->regs[rs];
     
     switch (rt) {
@@ -211,6 +220,8 @@ DEFUN_I(bgez, r, m, rs, rt, imm)
 
 DEFUN_I(beq, r, m, rs, rt, imm)
 {
+    State.nBranch++;
+    
     if (r->regs[rs]==r->regs[rt]) {
         exec_delayed_branch(r, m);
         r->pc += SIGNEXT(imm)*4;
@@ -219,6 +230,8 @@ DEFUN_I(beq, r, m, rs, rt, imm)
 
 DEFUN_I(bne, r, m, rs, rt, imm)
 {
+    State.nBranch++;
+    
     if (r->regs[rs]!=r->regs[rt]) {
         exec_delayed_branch(r, m);
         r->pc += SIGNEXT(imm)*4;
@@ -227,6 +240,8 @@ DEFUN_I(bne, r, m, rs, rt, imm)
 
 DEFUN_I(blez, r, m, rs, rt, imm)
 {
+    State.nBranch++;
+    
     int t=r->regs[rs];
     if (t<=0) {
         exec_delayed_branch(r, m);
@@ -236,6 +251,8 @@ DEFUN_I(blez, r, m, rs, rt, imm)
 
 DEFUN_I(bgtz, r, m, rs, rt, imm)
 {
+    State.nBranch++;
+    
     int t=r->regs[rs];
     if (t>0) {
         exec_delayed_branch(r, m);
@@ -285,6 +302,8 @@ DEFUN_I(xori, r, m, rs, rt, imm)
 
 DEFUN_I(lb, r, m, rs, rt, imm)
 {
+    State.nLoad++;
+    
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
     char *addr = (char*)mmu_translate_addr(m, va);
     if (addr==NULL) {
@@ -306,6 +325,8 @@ DEFUN_I(lui, r, m, rs, rt, imm)
 
 DEFUN_I(lw, r, m, rs, rt, imm)
 {
+    State.nLoad++;
+    
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
@@ -318,6 +339,8 @@ DEFUN_I(lw, r, m, rs, rt, imm)
 
 DEFUN_I(lbu, r, m, rs, rt, imm)
 {
+    State.nLoad++;
+    
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
     unsigned char *addr = (unsigned char*)mmu_translate_addr(m, va);
     if (addr==NULL) {
@@ -330,6 +353,8 @@ DEFUN_I(lbu, r, m, rs, rt, imm)
 
 DEFUN_I(lhu, r, m, rs, rt, imm)
 {
+    State.nLoad++;
+    
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
     uint16_t *addr = (uint16_t*)mmu_translate_addr(m, va);
     if (addr==NULL) {
@@ -342,6 +367,8 @@ DEFUN_I(lhu, r, m, rs, rt, imm)
 
 DEFUN_I(sb, r, m, rs, rt, imm)
 {
+    State.nStore++;
+    
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     char *my_addr = (char*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
@@ -354,6 +381,8 @@ DEFUN_I(sb, r, m, rs, rt, imm)
 
 DEFUN_I(sh, r, m, rs, rt, imm)
 {
+    State.nStore++;
+    
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
@@ -366,6 +395,8 @@ DEFUN_I(sh, r, m, rs, rt, imm)
 
 DEFUN_I(swl, r, m, rs, rt, imm)
 {
+    State.nStore++;
+    
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
@@ -378,6 +409,8 @@ DEFUN_I(swl, r, m, rs, rt, imm)
 
 DEFUN_I(sw, r, m, rs, rt, imm)
 {
+    State.nStore++;
+    
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
@@ -390,6 +423,8 @@ DEFUN_I(sw, r, m, rs, rt, imm)
 
 DEFUN_I(swr, r, m, rs, rt, imm)
 {
+    State.nStore++;
+    
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
@@ -434,6 +469,8 @@ i_inst_tab mips_i_insts[64] =
 /* begin J instructions */
 DEFUN_J(j, r, m, imm)
 {
+    State.nJump++;
+    
     exec_delayed_branch(r, m);
     
     imm <<= 2;
@@ -443,6 +480,8 @@ DEFUN_J(j, r, m, imm)
 
 DEFUN_J(jal, r, m, imm)
 {
+    State.nJump++;
+    
     exec_delayed_branch(r, m);
     
     r->regs[31] = r->pc+4;
@@ -499,17 +538,23 @@ void
 mips_inst_exec(struct mips_regs *reg, struct mmu *m, uint32_t inst)
 {
     mipsinst_t mi;
+    extern int inst_count;
 
     mi.bytes = inst;
     reg->pc += 4;
+    inst_count++;
+
     switch (get_inst_type(mi)) {
     case R_TYPE:
+        State.r_inst++;
         r_inst(reg, m, mi.r.rs, mi.r.rt, mi.r.rd, mi.r.sa, mi.r.funct);
         break;
     case I_TYPE:
+        State.i_inst++;
         i_inst(reg, m, mi.i.opcode, mi.i.rs, mi.i.rt, mi.i.imm);
         break;
     case J_TYPE:
+        State.j_inst++;
         j_inst(reg, m, mi.j.opcode, mi.j.imm);
         break;
         
@@ -530,8 +575,6 @@ static void statechk(struct mips_regs *r)
 void
 mips_run(struct mips_regs *r, struct mmu *m, uint32_t entry_addr, int debug)
 {
-    extern int inst_count;
-
     mmu_alloc_heap_stack(m, r);
     
     r->pc = entry_addr;
@@ -547,7 +590,6 @@ mips_run(struct mips_regs *r, struct mmu *m, uint32_t entry_addr, int debug)
         statechk(r);
         uint32_t inst = *(uint32_t*)mmu_translate_addr(m, r->pc);
         mips_inst_exec(r, m, inst);
-        inst_count++;
     }
 }
 

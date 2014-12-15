@@ -5,6 +5,7 @@
 #include "mmu.h"
 #include "mipsop.h"
 #include "simerr.h"
+#include "state.h"
 
 void print_disas_string(mipsinst_t);
 
@@ -23,6 +24,7 @@ void sim_exit()
             log_msg("\n");
         }
     }
+    state_print();
     log_end();
 }
 
