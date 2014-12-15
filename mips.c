@@ -25,7 +25,7 @@ DEFUN_R(jr, r, m, rs, rt, rd, shamt)
 DEFUN_R(jalr, r, m, rs, rt, rd, shamt)
 {
     exec_delayed_branch(r, m);
-    r->regs[rd] = r->pc;
+    r->regs[rd] = r->pc+4;
     r->pc = r->regs[rs];
 }
 
@@ -266,7 +266,8 @@ DEFUN_I(sltiu, r, m, rs, rt, imm)
 
 DEFUN_I(andi, r, m, rs, rt, imm)
 {
-    
+    uint32_t t1 = imm;
+    r->regs[rt] = r->regs[rs] & t1;
 }
 
 DEFUN_I(ori, r, m, rs, rt, imm)
