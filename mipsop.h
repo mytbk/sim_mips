@@ -157,7 +157,7 @@ typedef struct
 
 typedef struct
 {
-    void (*exec_j_inst)(struct mips_regs*, struct mmu*, int);
+    void (*exec_j_inst)(struct mips_regs*, struct mmu*, uint32_t);
     char *asmstr;
 } j_inst_tab;
 
