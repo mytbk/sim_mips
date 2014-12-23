@@ -4,7 +4,7 @@
 #include "type.h"
 #include "mips.h"
 
-#define USTKSIZE (1<<13)
+#define USTKSIZE (1<<23) // 8M
 #define USTKTOP (0xc0000000)
 #define PGSIZE 4096
 
@@ -24,9 +24,16 @@ ROUNDUP(x, n)
 #define PTX(x) (((x)>>12)&1023)
 #define PGOFF(x) ((x)&4095)
 
+typedef struct
+{
+    void* addr;
+    int valid;
+    int access;
+} pte_t;
+    
 struct mmu 
 {
-    void ***pgdir;
+    pte_t ** pgdir;
     uint32_t brk;
     /* next free virt address
        that can be allocated in kernel

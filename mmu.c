@@ -6,7 +6,7 @@
 int 
 mmu_init(struct mmu *m)
 {
-    m->pgdir = calloc(1024, sizeof(void**));
+    m->pgdir = calloc(1024, sizeof(pte_t*));
     return 0;
 }
 
@@ -16,9 +16,10 @@ set_pg_map(struct mmu *m, uint32_t va, void* addr)
     size_t pdx=PDX(va), ptx=PTX(va);
         
     if (m->pgdir[pdx]==NULL) {
-        m->pgdir[pdx] = calloc(1024, sizeof(void*));
+        m->pgdir[pdx] = calloc(1024, sizeof(pte_t));
     }
-    m->pgdir[pdx][ptx] = addr;
+    m->pgdir[pdx][ptx].addr = addr;
+    m->pgdir[pdx][ptx].valid = 1;
 }
 
 void*
@@ -41,10 +42,10 @@ void*
 mmu_translate_addr(struct mmu *m, uint32_t vm)
 {
     size_t pdx=PDX(vm), ptx=PTX(vm);
-    if (m->pgdir[pdx]==NULL) {
+    if (m->pgdir[pdx]==NULL || !m->pgdir[pdx][ptx].valid) {
         return NULL;
     }
-    return m->pgdir[pdx][ptx]+PGOFF(vm);
+    return m->pgdir[pdx][ptx].addr+PGOFF(vm);
 }
 
 uint32_t
