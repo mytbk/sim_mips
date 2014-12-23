@@ -8,6 +8,10 @@
 #include "state.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "cache.h"
+
+extern cache_t sim_icache;
+extern cache_t sim_dcache;
 
 static void
 exec_delayed_branch(struct mips_regs *r, struct mmu *m)
@@ -303,8 +307,10 @@ DEFUN_I(xori, r, m, rs, rt, imm)
 DEFUN_I(lb, r, m, rs, rt, imm)
 {
     State.nLoad++;
-    
+
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, va);
+        
     char *addr = (char*)mmu_translate_addr(m, va);
     if (addr==NULL) {
         log_msg("error: lb: target address %x not exist, pc=%x\n", va, r->pc);
@@ -328,6 +334,8 @@ DEFUN_I(lw, r, m, rs, rt, imm)
     State.nLoad++;
     
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, addr);
+    
     uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: lw: target address %x not exist, pc=%x\n", addr, r->pc);
@@ -340,8 +348,10 @@ DEFUN_I(lw, r, m, rs, rt, imm)
 DEFUN_I(lbu, r, m, rs, rt, imm)
 {
     State.nLoad++;
-    
+
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, va);
+    
     unsigned char *addr = (unsigned char*)mmu_translate_addr(m, va);
     if (addr==NULL) {
         log_msg("error: lbu: target address %x not exist, pc=%x\n", va, r->pc);
@@ -354,8 +364,10 @@ DEFUN_I(lbu, r, m, rs, rt, imm)
 DEFUN_I(lhu, r, m, rs, rt, imm)
 {
     State.nLoad++;
-    
+
     uint32_t va = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, va);
+    
     uint16_t *addr = (uint16_t*)mmu_translate_addr(m, va);
     if (addr==NULL) {
         log_msg("error: lhu: target address %x not exist, pc=%x\n", va, r->pc);
@@ -370,6 +382,8 @@ DEFUN_I(sb, r, m, rs, rt, imm)
     State.nStore++;
     
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, addr);
+    
     char *my_addr = (char*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: sb: target address %x not exist, pc=%x\n", addr, r->pc);
@@ -384,6 +398,8 @@ DEFUN_I(sh, r, m, rs, rt, imm)
     State.nStore++;
     
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, addr);
+    
     uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: sh: target address %x not exist, pc=%x\n", addr, r->pc);
@@ -398,6 +414,8 @@ DEFUN_I(swl, r, m, rs, rt, imm)
     State.nStore++;
     
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, addr);
+    
     uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
@@ -412,6 +430,8 @@ DEFUN_I(sw, r, m, rs, rt, imm)
     State.nStore++;
     
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, addr);
+    
     uint32_t* my_addr = (uint32_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: sw: target address %x not exist, pc=%x\n", addr, r->pc);
@@ -426,6 +446,8 @@ DEFUN_I(swr, r, m, rs, rt, imm)
     State.nStore++;
     
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
+    cache_access(&sim_dcache, addr);
+    
     uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
@@ -540,6 +562,8 @@ mips_inst_exec(struct mips_regs *reg, struct mmu *m, uint32_t inst)
     mipsinst_t mi;
     extern int inst_count;
 
+    cache_access(&sim_icache, reg->pc);
+    
     mi.bytes = inst;
     reg->pc += 4;
     inst_count++;

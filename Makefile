@@ -1,5 +1,6 @@
 CFLAGS=-g -Wall
-OBJS=main.o mmu.o mips.o mipsinst.o syscall.o debugger.o simerr.o state.o
+OBJS=main.o mmu.o mips.o mipsinst.o syscall.o debugger.o simerr.o \
+	state.o cache.o
 
 all: main
 

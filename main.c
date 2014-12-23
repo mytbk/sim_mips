@@ -6,11 +6,15 @@
 #include "mipsop.h"
 #include "simerr.h"
 #include "state.h"
+#include "cache.h"
 
 void print_disas_string(mipsinst_t);
 
 struct mmu sim_mmu;
 struct mips_regs reg;
+cache_t sim_icache;
+cache_t sim_dcache;
+
 int inst_count=0;
 
 void sim_exit()
@@ -70,6 +74,9 @@ int main(int argc, char *argv[])
     if (argc>=3 && strcmp(argv[2], "-d")==0) {
         dbg = 1;
     }
+
+    init_cache(&sim_icache, 1024, 4, 3);
+    init_cache(&sim_dcache, 1024, 4, 3);
     
     mips_run(&reg, &sim_mmu, hdr.e_entry, dbg);
     
