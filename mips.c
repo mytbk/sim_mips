@@ -416,12 +416,21 @@ DEFUN_I(swl, r, m, rs, rt, imm)
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     cache_access(&sim_dcache, addr);
     
-    uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
+    char *my_addr = (char*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
     } else {
-        *my_addr = r->regs[rt]>>16;
+        int i;
+        
+        uint32_t w = r->regs[rt];
+        int n = addr & 3;
+        my_addr -= n;
+        w >>= (3-n)*8;
+        for (i=0; i<=n; i++) {
+            my_addr[i] = w;
+            w >>= 8;
+        }
     }
 }
 
@@ -448,11 +457,19 @@ DEFUN_I(swr, r, m, rs, rt, imm)
     uint32_t addr = r->regs[rs]+SIGNEXT(imm);
     cache_access(&sim_dcache, addr);
     
-    uint16_t *my_addr = (uint16_t*)mmu_translate_addr(m, addr);
+    char *my_addr = (char*)mmu_translate_addr(m, addr);
     if (my_addr==NULL) {
         log_msg("error: swl: target address %x not exist, pc=%x\n", addr, r->pc);
         exit(1);
     } else {
+        int i;
+        
+        uint32_t w = r->regs[rt];
+        int n = 4 - (addr & 3);
+        for (i=0; i<n; i++) {
+            my_addr[i] = w;
+            w >>= 8;
+        }
         *my_addr = r->regs[rt];
     }
 }
