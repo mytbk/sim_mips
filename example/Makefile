@@ -15,6 +15,11 @@ bin/dhrystone2: $(DHRY2_OBJS) ../libs/libs.a
 bin/libtest: libtest/libtest.o ../libs/libs.a
 	$(LD) -o bin/libtest libtest/libtest.o ../libs/libs.a
 
+bin/matrix01: matrix/matrix01.o ../libs/libs.a
+	$(LD) -o bin/matrix01 matrix/matrix01.o ../libs/libs.a
+bin/matrix02: matrix/matrix02.o ../libs/libs.a
+	$(LD) -o bin/matrix02 matrix/matrix02.o ../libs/libs.a
+
 ../libs/libs.a:
 	make -C ../libs
 
