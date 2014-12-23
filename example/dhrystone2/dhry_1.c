@@ -152,14 +152,6 @@ int             Int_Glob;
          /* Warning: With 16-Bit processors and Number_Of_Runs > 32000, */
          /* overflow may occur for this array element.                  */
  
-
-    fprintf (Ap, " #####################################################\n\n");                     
-    for (i=1; i<10; i++)
-    {
-        fprintf(Ap, "%s \n", configdata[i]);
-    }
-    fprintf (Ap, "\n");
- 
     printf("##########################################\n"); 
 
    printf ("\n");
