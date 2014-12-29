@@ -4,8 +4,6 @@
 #include "cache.h"
 
 state_t State = {};
-extern cache_t sim_icache;
-extern cache_t sim_dcache;
 
 void
 state_print()

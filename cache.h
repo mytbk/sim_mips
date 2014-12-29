@@ -20,6 +20,9 @@ typedef struct
     int nMiss;
 }cache_t;
 
+extern cache_t sim_icache;
+extern cache_t sim_dcache;
+
 void init_cache(cache_t *cache, int nSets, int nLines, int nBits);
 void cache_access(cache_t *cache, uint32_t);
 

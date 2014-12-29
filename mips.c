@@ -10,9 +10,6 @@
 #include <stdlib.h>
 #include "cache.h"
 
-extern cache_t sim_icache;
-extern cache_t sim_dcache;
-
 static void
 exec_delayed_branch(struct mips_regs *r, struct mmu *m)
 {

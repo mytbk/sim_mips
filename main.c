@@ -12,8 +12,6 @@ void print_disas_string(mipsinst_t);
 
 struct mmu sim_mmu;
 struct mips_regs reg;
-cache_t sim_icache;
-cache_t sim_dcache;
 
 int inst_count=0;
 

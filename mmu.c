@@ -87,10 +87,3 @@ mmu_heap_alloc(struct mmu *m, uint32_t size)
     return ret;
 }
 
-
-
-
-
-
-
-

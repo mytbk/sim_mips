@@ -1,6 +1,9 @@
 #include "cache.h"
 #include <stdlib.h>
 
+cache_t sim_icache;
+cache_t sim_dcache;
+
 void
 init_cache(cache_t *cache, int s, int l, int b)
 {
