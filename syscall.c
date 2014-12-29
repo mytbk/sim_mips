@@ -82,7 +82,6 @@ void
 handle_syscall(struct mips_regs *r, struct mmu *m)
 {
     int n;
-    log_msg("syscall %d pc=0x%x\n", r->regs[2], r->pc);
     
     switch (r->regs[2]) {
     case 4001:
@@ -119,7 +118,7 @@ handle_syscall(struct mips_regs *r, struct mmu *m)
         break;
         
     default:
-        log_msg("syscall %d unhandled\n", r->regs[2]);
+        log_msg("syscall %d unhandled pc=0x%x\n", r->regs[2], r->pc);
         break;
         
     }
