@@ -40,10 +40,38 @@ int main(int argc, char *argv[])
     
     int i, dbg=0;
 
+    // cache
+    int nSets=1024, nLines=4, nBits=2;
+    
+    for (i=1; i<argc; i++) {
+        if (strcmp(argv[i], "-d")==0) {
+            dbg = 1;
+            continue;
+        }
+        if (strcmp(argv[i], "-c")==0) {
+            if (i+3<argc) {
+                nSets = atoi(argv[i+1]);
+                nLines = atoi(argv[i+2]);
+                nBits = atoi(argv[i+3]);
+            } else {
+                printf("%s [-d] [-c <set> <line> <bit>] <prog> [args]\n", argv[0]);
+                exit(1);
+            }
+            i+=3;
+            continue;
+        }
+        break;
+    }
+
+    if (i>=argc) {
+        printf("%s [-d] [-c <set> <line> <bit>] <prog> [args]\n", argv[0]);
+        exit(1);
+    }
+    
     log_init();
     atexit(sim_exit);
-    
-    fp = fopen(argv[1], "rb");
+            
+    fp = fopen(argv[i], "rb");
     fread(&hdr, sizeof(hdr), 1, fp);
     log_msg("entry point: %x\n", hdr.e_entry);
     fseek(fp, hdr.e_phoff, SEEK_SET);
@@ -69,14 +97,15 @@ int main(int argc, char *argv[])
     
     uint32_t *entry_addr = (uint32_t*)mmu_translate_addr(&sim_mmu, hdr.e_entry);
     log_msg("The first instruction word: %x\n", *entry_addr);
-    print_disas_string(*(mipsinst_t*)entry_addr);
 
     if (argc>=3 && strcmp(argv[2], "-d")==0) {
         dbg = 1;
     }
 
-    init_cache(&sim_icache, 1024, 4, 3);
-    init_cache(&sim_dcache, 1024, 4, 3);
+    log_msg("cache: set=%d line=%d bit=%d\n", nSets, nLines, nBits);
+    
+    init_cache(&sim_icache, nSets, nLines, nBits);
+    init_cache(&sim_dcache, nSets, nLines, nBits);
     
     mips_run(&reg, &sim_mmu, hdr.e_entry, dbg);
     
@@ -84,14 +113,6 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-
-
-
-
-
-
-
 
 
 
