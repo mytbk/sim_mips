@@ -20,6 +20,12 @@ bin/matrix01: matrix/matrix01.o ../libs/libs.a
 bin/matrix02: matrix/matrix02.o ../libs/libs.a
 	$(LD) -o bin/matrix02 matrix/matrix02.o ../libs/libs.a
 
+gensort:
+	cd quicksort &&	./gendata.sh | sort -n > sorted.txt
+quicksort/qsort.o: gensort
+bin/qsort: quicksort/qsort.o  ../libs/libs.a
+	$(LD) -o bin/qsort quicksort/qsort.o ../libs/libs.a
+
 ../libs/libs.a:
 	make -C ../libs
 
