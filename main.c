@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
     int i, dbg=0;
 
     char *logfile = "sim.log";
+    char *tracefile = NULL;
     
     // cache
     int nSets=1024, nLines=4, nBits=2;
@@ -80,6 +81,15 @@ int main(int argc, char *argv[])
             i++;
             continue;
         }
+        if (strcmp(argv[i], "-t")==0) {
+            if (i+1<argc) {
+                tracefile = argv[i+1];
+            } else {
+                helpmsg(argv[0]);
+            }
+            i++;
+            continue;
+        }
                     
         break;
     }
@@ -89,6 +99,10 @@ int main(int argc, char *argv[])
     }
     
     log_init(logfile);
+    if (tracefile) {
+        trace_init(tracefile);
+    }
+    
     atexit(sim_exit);
             
     fp = fopen(argv[i], "rb");
