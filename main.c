@@ -15,6 +15,18 @@ struct mips_regs reg;
 
 int inst_count=0;
 
+static void
+helpmsg(const char* str)
+{
+    printf("%s [options] <prog> [args]\n", str);
+    puts("Options:");
+    puts(" -d: debug mode");
+    puts(" -c <set> <line> <bit>: set cache sets, association, and block size");
+    puts(" -t <tracefile>: set trace file");
+    puts(" -l <logfile>: set log file");
+    exit(1);
+}
+
 void sim_exit()
 {
     int i;
@@ -38,6 +50,8 @@ int main(int argc, char *argv[])
     
     int i, dbg=0;
 
+    char *logfile = "sim.log";
+    
     // cache
     int nSets=1024, nLines=4, nBits=2;
     
@@ -52,21 +66,29 @@ int main(int argc, char *argv[])
                 nLines = atoi(argv[i+2]);
                 nBits = atoi(argv[i+3]);
             } else {
-                printf("%s [-d] [-c <set> <line> <bit>] <prog> [args]\n", argv[0]);
-                exit(1);
+                helpmsg(argv[0]);
             }
             i+=3;
             continue;
         }
+        if (strcmp(argv[i], "-l")==0) {
+            if (i+1<argc) {
+                logfile = argv[i+1];
+            } else {
+                helpmsg(argv[0]);
+            }
+            i++;
+            continue;
+        }
+                    
         break;
     }
 
     if (i>=argc) {
-        printf("%s [-d] [-c <set> <line> <bit>] <prog> [args]\n", argv[0]);
-        exit(1);
+        helpmsg(argv[0]);
     }
     
-    log_init();
+    log_init(logfile);
     atexit(sim_exit);
             
     fp = fopen(argv[i], "rb");

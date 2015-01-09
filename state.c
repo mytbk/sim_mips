@@ -20,8 +20,11 @@ state_print()
     log_msg("\n### Cache ###\n");
     log_msg("D-Cache hit:  %d\n", sim_dcache.nHit);
     log_msg("D-Cache miss: %d\n", sim_dcache.nMiss);
+    log_msg("D-Cache hit ratio: %lf\n",
+            (double)sim_dcache.nHit/(sim_dcache.nHit+sim_dcache.nMiss));
     log_msg("I-Cache hit:  %d\n", sim_icache.nHit);
     log_msg("I-Cache miss: %d\n", sim_icache.nMiss);
+    log_msg("I-Cache hit ratio: %lf\n", (double)sim_icache.nHit/(sim_icache.nHit+sim_icache.nMiss));
 }
 
 

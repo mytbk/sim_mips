@@ -4,10 +4,10 @@
 
 static FILE *ferr;
 
-FILE *log_init()
+FILE *log_init(const char *fn)
 {
     assert(ferr==NULL);
-    ferr = fopen("sim.log", "w");
+    ferr = fopen(fn, "w");
     return ferr;
 }
 
