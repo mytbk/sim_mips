@@ -55,10 +55,11 @@ int main()
 {
     int i;
     quick_sort(array, 0, NUM);
+#ifdef PRINT
     for (i=0; i<NUM; i++) {
         printf("%d\n", array[i]);
     }
-    
+#endif
     return 0;
 }
 
