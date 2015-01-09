@@ -1,4 +1,5 @@
 #include "cache.h"
+#include "simerr.h"
 #include <stdlib.h>
 
 cache_t sim_icache;
@@ -35,12 +36,19 @@ cache_access(cache_t *cache, uint32_t addr)
     for (i=0; i<cache->nLines; i++) {
         Cache_Block *b = &cache->cache_block[set][i];
         if (b->valid && b->tag==tag) {
+            if (cache==&sim_dcache) {
+                trace_msg("%x HIT\n", addr);
+            }
             cache->nHit++;
             b->lastVisit = cache->nVisits;
             return;
         } 
     }
     // cache miss
+    if (cache==&sim_dcache) {
+        trace_msg("%x MISS\n", addr);
+    }
+    
     cache->nMiss++;
     for (i=0; i<cache->nLines; i++) {
         Cache_Block *b = &cache->cache_block[set][i];
@@ -60,7 +68,7 @@ cache_access(cache_t *cache, uint32_t addr)
             idx = i;
         }
     }
-    Cache_Block *b = &cache->cache_block[set][i];
+    Cache_Block *b = &cache->cache_block[set][idx];
     b->tag = tag;
     b->lastVisit = cache->nVisits;
 }
