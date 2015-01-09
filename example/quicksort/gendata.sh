@@ -1,6 +1,6 @@
 #!/bin/sh
 
-NUM=10000
+NUM=100000
 echo "#define NUM $NUM" > data.h
 echo 'int array[NUM]={' >> data.h
 while [ $NUM -gt 0 ]

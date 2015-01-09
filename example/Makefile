@@ -26,6 +26,9 @@ quicksort/qsort.o: gensort
 bin/qsort: quicksort/qsort.o  ../libs/libs.a
 	$(LD) -o bin/qsort quicksort/qsort.o ../libs/libs.a
 
+bin/array: array/array.o ../libs/libs.a
+	$(LD) -o bin/array array/array.o ../libs/libs.a
+
 ../libs/libs.a:
 	make -C ../libs
 
