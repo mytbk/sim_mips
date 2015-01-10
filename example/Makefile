@@ -2,7 +2,7 @@ COMPILE_PREFIX=mipsel-unknown-linux-gnu-
 CC=$(COMPILE_PREFIX)gcc
 LD=$(COMPILE_PREFIX)ld
 AS=$(COMPILE_PREFIX)as
-CFLAGS += -I../libs
+CFLAGS += -I../libs -O2
 
 DHRY2_OBJS=dhrystone2/dhry_1.o dhrystone2/dhry_2.o dhrystone2/cpuidc.o
 
@@ -19,12 +19,14 @@ matrix/matrix01.o: matrix/matrix.c
 	$(CC) $(CFLAGS) -DMATRIX01 -c -o matrix/matrix01.o matrix/matrix.c
 matrix/matrix02.o: matrix/matrix.c
 	$(CC) $(CFLAGS) -DMATRIX02 -c -o matrix/matrix02.o matrix/matrix.c
-
+matrix/matrix03.o: matrix/matrix.c
+	$(CC) $(CFLAGS) -DMATRIX03 -c -o matrix/matrix03.o matrix/matrix.c
 bin/matrix01: matrix/matrix01.o ../libs/libs.a
 	$(LD) -o bin/matrix01 matrix/matrix01.o ../libs/libs.a
 bin/matrix02: matrix/matrix02.o ../libs/libs.a
 	$(LD) -o bin/matrix02 matrix/matrix02.o ../libs/libs.a
-
+bin/matrix03: matrix/matrix03.o ../libs/libs.a
+	$(LD) -o bin/matrix03 matrix/matrix03.o ../libs/libs.a
 gensort:
 	cd quicksort &&	./gendata.sh | sort -n > sorted.txt
 quicksort/qsort.o: gensort
