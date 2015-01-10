@@ -2,6 +2,7 @@
 #include "mmu.h"
 #include "mips.h"
 #include <stdlib.h>
+#include <string.h>
 
 int 
 mmu_init(struct mmu *m)
