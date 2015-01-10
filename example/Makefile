@@ -15,6 +15,11 @@ bin/dhrystone2: $(DHRY2_OBJS) ../libs/libs.a
 bin/libtest: libtest/libtest.o ../libs/libs.a
 	$(LD) -o bin/libtest libtest/libtest.o ../libs/libs.a
 
+matrix/matrix01.o: matrix/matrix.c
+	$(CC) $(CFLAGS) -DMATRIX01 -c -o matrix/matrix01.o matrix/matrix.c
+matrix/matrix02.o: matrix/matrix.c
+	$(CC) $(CFLAGS) -DMATRIX02 -c -o matrix/matrix02.o matrix/matrix.c
+
 bin/matrix01: matrix/matrix01.o ../libs/libs.a
 	$(LD) -o bin/matrix01 matrix/matrix01.o ../libs/libs.a
 bin/matrix02: matrix/matrix02.o ../libs/libs.a
@@ -34,4 +39,6 @@ bin/array: array/array.o ../libs/libs.a
 
 .PHONY: clean
 clean:
-	rm -f hello/hello.o $(DHRY2_OBJS) libtest/libtest.o
+	find -name '*.o' -delete
+	rm bin/*
+

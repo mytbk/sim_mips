@@ -1,11 +1,15 @@
 #include "printf.h"
 #include "data.h"
 
+#ifndef INSNUM
+#define INSNUM 20
+#endif
+
 void quick_sort(int s[], int l, int r)
 {
     int i;
     
-    while (r-l>20){
+    while (r-l>INSNUM){
         int x = s[l];
         
         int i = l, j = r;
