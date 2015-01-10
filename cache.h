@@ -22,6 +22,7 @@ typedef struct
 
 extern cache_t sim_icache;
 extern cache_t sim_dcache;
+extern int missTime;
 
 void init_cache(cache_t *cache, int nSets, int nLines, int nBits);
 void cache_access(cache_t *cache, uint32_t);

@@ -4,6 +4,7 @@
 
 cache_t sim_icache;
 cache_t sim_dcache;
+int missTime=100;
 
 void
 init_cache(cache_t *cache, int s, int l, int b)

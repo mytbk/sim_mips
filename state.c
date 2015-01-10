@@ -25,6 +25,7 @@ state_print()
     log_msg("I-Cache hit:  %d\n", sim_icache.nHit);
     log_msg("I-Cache miss: %d\n", sim_icache.nMiss);
     log_msg("I-Cache hit ratio: %lf\n", (double)sim_icache.nHit/(sim_icache.nHit+sim_icache.nMiss));
+    log_msg("Cycles: %d\n", sim_icache.nHit+(sim_icache.nMiss+sim_dcache.nMiss)*missTime);
 }
 
 
