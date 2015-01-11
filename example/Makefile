@@ -27,6 +27,10 @@ bin/matrix02: matrix/matrix02.o ../libs/libs.a
 	$(LD) -o bin/matrix02 matrix/matrix02.o ../libs/libs.a
 bin/matrix03: matrix/matrix03.o ../libs/libs.a
 	$(LD) -o bin/matrix03 matrix/matrix03.o ../libs/libs.a
+bin/trans01: matrix/transpose.c
+	$(CC) $(CFLAGS) -nostdlib -static -o bin/trans01 -DTRANS01  matrix/transpose.c ../libs/libs.a
+bin/trans02: matrix/transpose.c
+	$(CC) $(CFLAGS) -nostdlib -static -o bin/trans02 -DTRANS02  matrix/transpose.c ../libs/libs.a
 gensort:
 	cd quicksort &&	./gendata.sh | sort -n > sorted.txt
 quicksort/qsort.o: gensort

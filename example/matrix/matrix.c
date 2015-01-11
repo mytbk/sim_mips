@@ -18,13 +18,12 @@ int main()
         }
 #endif
 #ifdef MATRIX02
-        for (j=0; j<MSIZE; j++) {
-            for (i=0; i<MSIZE; i++) {
-                int sum = 0;
+        for (i=0; i<MSIZE; i++) {
+            for (j=0; j<MSIZE; j++) {
+                int aij = A[i][j];
                 for (k=0; k<MSIZE; k++) {
-                    sum += A[i][k]*B[k][j];
+                    C[i][k] += aij*B[j][k];
                 }
-                C[i][j] = sum;
             }
         }
 #endif
