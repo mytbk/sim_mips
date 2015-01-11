@@ -3,6 +3,7 @@ CC=$(PREFIX)gcc
 LD=$(PREFIX)ld
 AS=$(PREFIX)as
 AR=$(PREFIX)ar
+CFLAGS+=-O2
 COMMONLIBS=entry.o libc.o libs.o malloc.o string.o printf.o file.o
 
 libs.a: $(COMMONLIBS)
