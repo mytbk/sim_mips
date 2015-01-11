@@ -106,6 +106,13 @@ DEFUN_R(srl, regs, m, rs, rt, rd, shamt)
     regs->regs[rd] = regs->regs[rt]>>shamt;
 }
 
+DEFUN_R(sra, regs, m, rs, rt, rd, shamt)
+{
+    int t = regs->regs[rt];
+    t >>= shamt;
+    regs->regs[rd] = t;
+}
+
 DEFUN_R(sllv, r, m, rs, rt, rd, shamt)
 {
     r->regs[rd] = r->regs[rt]<<r->regs[rs];
@@ -149,6 +156,7 @@ DEFUN_R(mtlo, r, m, rs, rt, rd, shamt)
 
 r_inst_tab mips_r_insts[64] =
 {
+    [MR_SRA] { sra, "sra $%d, $%d $%d" },    
     [MR_SLLV] { sllv, "sllv $%d, $%d, $%d" },    
     [MR_JR] { jr, "jr $%d" },
     [MR_JALR] { jalr, "jalr $%d, $%d" },
