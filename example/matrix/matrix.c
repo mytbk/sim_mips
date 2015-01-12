@@ -20,6 +20,12 @@ int main()
 #ifdef MATRIX02
         for (i=0; i<MSIZE; i++) {
             for (j=0; j<MSIZE; j++) {
+                C[i][j] = 0;
+            }
+        }
+        
+        for (i=0; i<MSIZE; i++) {
+            for (j=0; j<MSIZE; j++) {
                 int aij = A[i][j];
                 for (k=0; k<MSIZE; k++) {
                     C[i][k] += aij*B[j][k];
