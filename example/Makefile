@@ -9,6 +9,8 @@ DHRY2_OBJS=dhrystone2/dhry_1.o dhrystone2/dhry_2.o dhrystone2/cpuidc.o
 bin/hello: hello/hello.o ../libs/libs.a
 	$(LD) hello/hello.o ../libs/libs.a -o bin/hello
 
+dhrystone2/dhry_1.o: dhrystone2/dhry_1.c
+	$(CC) $(CFLAGS) -DNOTIMER -c -o dhrystone2/dhry_1.o dhrystone2/dhry_1.c
 bin/dhrystone2: $(DHRY2_OBJS) ../libs/libs.a
 	$(LD) -o bin/dhrystone2 $(DHRY2_OBJS) ../libs/libs.a
 

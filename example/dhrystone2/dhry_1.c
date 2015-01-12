@@ -175,13 +175,13 @@ int             Int_Glob;
        Number_Of_Runs = Number_Of_Runs * 2;
        count = count - 1;
        Arr_2_Glob [8][7] = 10;
-        
+#ifndef NOTIMER        
        /***************/
        /* Start timer */
        /***************/
   
        start_time();
-   
+#endif   
        for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
        {
  
@@ -227,7 +227,7 @@ int             Int_Glob;
            /* Int_1_Loc == 5 */
  
        }   /* loop "for Run_Index" */
- 
+#ifndef NOTIMER
        /**************/
        /* Stop timer */
        /**************/
@@ -244,6 +244,9 @@ int             Int_Glob;
        {
            Number_Of_Runs = Number_Of_Runs * 5;
        }
+#else
+       count = 0;
+#endif
    }   /* calibrate/run do while */
    while (count >0);
  
@@ -377,7 +380,7 @@ int             Int_Glob;
 
    printf ("\n");
     
- 
+#ifndef NOTIMER 
    if (User_Time < Too_Small_Time)
    {
      printf ("Measured time too small to obtain meaningful results\n");
@@ -407,7 +410,9 @@ int             Int_Glob;
    fprintf (Ap, " #####################################################\n\n");                     
    fprintf (Ap, " Dhrystone Benchmark 2.1 %s via C/C++ %s\n", options, timeday);
    fprintf (Ap, " VAX MIPS rating:      %d\n\n",Vax_Mips);
-
+#else
+   {
+#endif
    if (Int_Glob != 5)
    {
        fprintf (Ap, " Wrong result Int_Glob Was %d Should be 5\n", Int_Glob);
